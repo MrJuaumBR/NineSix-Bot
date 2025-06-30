@@ -1,0 +1,4 @@
+.env
+*.pydb
+.vscode
+.venv

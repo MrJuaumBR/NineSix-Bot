@@ -1,0 +1,23 @@
+# TODO
+- [ ] Quest System;
+- [ ] City System;
+- [ ] Battle System;
+- [ ] Fish System;
+- [ ] Mining System;
+- [ ] Wood System;
+- [ ] Status System;
+- [ ] Dice System;
+- [ ] Morte
+- [ ] Classe
+- [ ] Skill
+- [ ] Títulos
+- [ ] Pets/Companheiros
+- [ ] Party
+- [ ] Eventos (EXP, gold, itens limitados, bosses limitados, etc)
+- [ ] Reputação
+- [ ] Craft
+- [ ] Status Negativo (doença, etc)
+- [ ] Evolução dos Monstros
+- [ ] Monstros
+- [ ] Raids
+- [ ] Bosses Mundiais
