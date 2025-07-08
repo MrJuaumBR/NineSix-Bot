@@ -48,7 +48,7 @@ def normalize_text(text:str) -> str:
     return unicodedata.normalize('NFKD', text).encode('ASCII', 'ignore').decode('utf-8')
 
 
-def humanize_cash(cash:int) -> str:
+def humanize_number(value:float) -> str:
     # 1000 -> 1k
     # 10000 -> 10k
     # 100000 -> 100k
@@ -58,10 +58,10 @@ def humanize_cash(cash:int) -> str:
     # ...
     suffixes = ['', 'k', 'M', 'B', 'T','Qd']
     i = 0
-    while cash >= 1000 and i < len(suffixes) - 1:
-        cash /= 1000
+    while abs(value) >= 1000 and i < len(suffixes) - 1:
+        value /= 1000
         i += 1
-    return f"{cash:.2f}{suffixes[i]}"
+    return f"{value:.2f}{suffixes[i]}"
 
 class Bot(discord.Client):
     synced:bool = False
@@ -82,7 +82,9 @@ class Bot(discord.Client):
         return getServer(self,server_id)
 
     def humanize_cash(self,cash:int) -> str:
-        return humanize_cash(cash)
+        return self.humanize_number(cash)
+    def humanize_number(self, value:float) -> str:
+        return humanize_number(value)
     
     async def loop_Status(self):
         await self.wait_until_ready()

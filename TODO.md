@@ -1,19 +1,19 @@
 # TODO
-- [ ] Quest System;
-- [ ] City System;
-- [ ] Battle System;
-- [ ] Fish System;
-- [ ] Mining System;
-- [ ] Wood System;
-- [ ] Status System;
-- [ ] Dice System;
-- [ ] Morte
-- [ ] Classe
-- [ ] Skill
-- [ ] Títulos
-- [ ] Pets/Companheiros
-- [ ] Party
-- [ ] Eventos (EXP, gold, itens limitados, bosses limitados, etc)
+- [ ] Quest System/Sistema de missões;
+- [ ] City System/Sistema de cidades;
+- [ ] Battle System/Sistema de batalhas;
+- [x] Fish System/Sistema de pescaria;
+- [ ] Mining System/Sistema de mineração;
+- [ ] Wood System/Sistema de cortar madeira;
+- [ ] Status System/Sistema de pontos;
+- [x] Dice System/Sistema de dados;
+- [ ] Death/Morte;
+- [ ] Class/Classe;
+- [ ] Skill/Habilidades;
+- [ ] Titles/Títulos;
+- [ ] Pets/Animais de estimação;
+- [ ] Party/Equipe;
+- [ ] Eventos;
 - [ ] Reputação
 - [ ] Craft
 - [ ] Status Negativo (doença, etc)

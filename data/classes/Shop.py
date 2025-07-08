@@ -2,68 +2,7 @@ from discord.ui import View, button, Button, Select
 from discord import ButtonStyle, Interaction, Embed, SelectOption, Client
 from .User import User as UserType
 from typing import Literal
-
-class Product:
-    name: str
-    price: int
-    description: str
-    action: object
-    
-    def __init__(self, name, price, description, action):
-        self.name = name
-        self.price = price
-        self.description = description
-        self.action = action
-    
-    def buy(self, **kwargs):
-        self.action(**kwargs)
-            
-class Item:
-    id:str
-    name:str
-    usages:int
-    item_type:Literal['weapon','fishing_rod','pickaxe','axe'] = None
-    unbreakable:bool = False
-    def __init__(self, id:str, name:str, usages:int, item_type:Literal['weapon','fishing_rod','pickaxe','axe'], unbreakable:bool=False):
-        self.id = id
-        self.name = name
-        self.usages = usages
-        self.unbreakable = unbreakable
-
-class ItemObj:
-    values:list[Item,] = [
-        Item('fishing_rod_wood', 'Varinha de pesca(Madeira)', 5, 'fishing_rod'), # Varinha de pesca
-        Item('fishing_rod_copper', 'Varinha de pesca(Cobre)', 26, 'fishing_rod'),
-        Item('fishing_rod_silver', 'Varinha de pesca(Prata)', 131, 'fishing_rod'),
-        Item('fishing_rod_gold', 'Varinha de pesca(Ouro)', 656, 'fishing_rod'),
-        Item('fishing_rod_diamond', 'Varinha de pesca(Diamante)', 3281, 'fishing_rod'),
-        Item('fishing_rod_obsidian', 'Varinha de pesca(Obsidiana)', 1, 'fishing_rod', True),
-        Item('pickaxe_wood', 'Picareta(Madeira)', 5, 'pickaxe'), # Picareta
-        Item('pickaxe_copper', 'Picareta(Cobre)', 26, 'pickaxe'),
-        Item('pickaxe_silver', 'Picareta(Prata)', 131, 'pickaxe'),
-        Item('pickaxe_gold', 'Picareta(Ouro)', 656, 'pickaxe'),
-        Item('pickaxe_diamond', 'Picareta(Diamante)', 3281, 'pickaxe'),
-        Item('pickaxe_obsidian', 'Picareta(Obsidiana)', 1, 'pickaxe', True),
-        Item('axe_wood', 'Machado(Madeira)', 5, 'axe'), # Machado
-        Item('axe_copper', 'Machado(Cobre)', 26, 'axe'),
-        Item('axe_silver', 'Machado(Prata)', 131, 'axe'),
-        Item('axe_gold', 'Machado(Ouro)', 656, 'axe'),
-        Item('axe_diamond', 'Machado(Diamante)', 3281, 'axe'),
-        Item('axe_obsidian', 'Machado(Obsidiana)', 1, 'axe', True),
-        ]
-    def findById(self,id:str) -> Item:
-        for item in Items.values:
-            if item.id == id:
-                return item
-            
-        return None
-    
-    def findByName(self,name:str) -> Item:
-        for item in Items.values:
-            if item.name == name:
-                return item
-            
-        return None
+from ..globals import *
 
 Items = ItemObj()
 
@@ -79,16 +18,16 @@ def give_item(item:str, amount:int,user_id:int, client:Client):
     
     if str(item) in user.tools.keys():
         user._tools[str(i.id)]['amount'] += amount
+        user._tools[str(i.id)]['usages'] += i.usages * amount
     else:
         user._tools[str(i.id)] = {
             'item_data': i.__dict__,
-            'amount': amount
+            'amount': amount,
+            'usages': i.usages * amount
         }
     
     client.db.update_value('users', 'data_user', user_id, user.save())
     client.db.save()
-
-
 
 class ServerShop:
     items: list[Product,] = []
@@ -255,11 +194,16 @@ class UserShopView(View):
             description=f'Itens a venda para o jogador:\n*Dinheiro do banco será utilizado para comprar itens*\n',
             color=0x00FF00
         )
-        for i, item in enumerate(self.shop.get_items_page(self.actual_page)):
-            e.add_field(name=f"{i+1}. {item.name}", value=f"{item.description} - ``por {self.quantity} = S${self.client.humanize_cash(item.price*self.quantity)}``", inline=False)
-        e.set_footer(text=f'Pág: {self.actual_page + 1}/{(len(self.shop.items)+1)//6}', icon_url=interaction.guild.icon or interaction.user.display_avatar)
-        await interaction.response.edit_message(embed=e, view=self)
         
+        e.set_footer(text=f'Pág: {self.actual_page + 1}/{(len(self.shop.items)+1)//6}', icon_url=interaction.guild.icon or interaction.user.display_avatar)
+        self.create_fields(e, self.actual_page)
+        await interaction.response.edit_message(embed=e, view=self)
+    
+    def create_fields(self, e:Embed, page:int):
+        for i, item in enumerate(self.shop.get_items_page(page)):
+            uItem = RawItems.findByName(item.name)
+            e.add_field(name=f"{i+1}. {item.name}", value=f"{item.description} - ``por {self.quantity} = S${self.client.humanize_cash(item.price*self.quantity)}``, Nível: **{uItem.level}**", inline=False)
+    
     @button(label='Anterior', style=ButtonStyle.green)
     async def back(self, interaction: Interaction, button: Button):
         self.actual_page -= 1

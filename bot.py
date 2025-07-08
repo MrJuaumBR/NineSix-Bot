@@ -2,6 +2,21 @@ from data.config import *
 
 
 # Funny Commands
+@t.command(name='dado', description='Jogue um dado',guilds=[])
+async def _roll(interaction: discord.Interaction, sides: int = 6, times: int = 1, fix: int = 0):
+    rolled:list[int,] = [random.randint(1, sides) for i in range(times)]
+    text = f'Você jogou um dado ({times}d{sides} {"" if fix in [0, None, ''] else f"+{fix}"}) e caiu: \n['
+    final_sum = 0
+    for i,r in enumerate(rolled):
+        if i != len(rolled) - 1:
+            text += f'{r+fix}{"" if fix in [0, None, ''] else f" ({r}+{fix})"}, '
+        else:
+            text += f'{r+fix}{"" if fix in [0, None, ''] else f" ({r}+{fix})"}'
+        final_sum += r+fix
+        
+    text += f'\nSoma: {final_sum}'
+    await interaction.response.send_message(text)
+
 @t.command(name='gaymeter', description='Vê o percentual de gayzice do usuário',guilds=[])
 async def _gaymeter(interaction: discord.Interaction, user: discord.User = None):
     if user == None:
@@ -69,6 +84,137 @@ async def _casal(interaction: discord.Interaction, user1: discord.User, user2: d
     await interaction.response.send_message(embed=e)
     
 # Economy Commands
+@t.command(name='catalogo', description='Vê o catalogo de itens',guilds=[])
+async def _catalogo(interaction: discord.Interaction):
+    e = discord.Embed(
+        title='Catalogo de itens',
+        color=Funny_Color
+    )
+    e.set_footer(text=str(random.choice(tips)), icon_url=interaction.guild.icon or interaction.user.display_avatar)
+    
+    
+    await interaction.response.send_message(embed=e)
+
+@t.command(name='pescar', description='Pescar',guilds=[])
+@discord.app_commands.checks.cooldown(1, 3)
+async def _fish(interaction: discord.Interaction):
+    # Get the user info
+    u = getUser(client, interaction.user.id)
+    
+    # Get the tool: fishing_rod
+    tool = u.getEquipped('fishing_rod')
+    
+    if tool == None:
+        await interaction.response.send_message('Você precisa ter uma **vara de pesca** equipada para usar este comando, caso não tenha, use o comando `/usuario-loja` e compre uma.', ephemeral=True)
+        return
+    
+    if tool['usages'] <= 0:
+        u.deleteTool('fishing_rod')
+    
+    fish = RawItems.getCategory('fish',level_limit=u._level)
+    fish:Item = random.choice(fish)
+    e = discord.Embed(
+        title='Pescando',
+        description=f'Voce pescou um {fish.name}!',
+        color=Funny_Color
+    )
+    e.set_footer(text=str(random.choice(tips)), icon_url=interaction.guild.icon or interaction.user.display_avatar)
+    if tool['item_data']['unbreakable'] == False:
+        tool['usages'] -= 1 
+        if tool['usages'] <= 0:
+            u.deleteTool('fishing_rod')
+            await interaction.followup.send('Sua vara de pesca foi quebrada, use o comando `/usuario-loja` e compre uma nova.', ephemeral=True)
+        
+    u.add_item(fish.id, 1)
+    client.db.update_value('users', 'data_user', u.id, u.save())
+    client.db.save()
+    
+    await interaction.response.send_message(embed=e)
+    
+    
+    
+@t.command(name='minerar', description='Minerar',guilds=[])
+async def _mine(interaction: discord.Interaction):
+    # Get the user info
+    u = getUser(client, interaction.user.id)
+    
+    # Get the tool: pickaxe
+    tool = u.getEquipped('pickaxe')
+    
+    if tool == None:
+        await interaction.response.send_message('Vocês precisa ter uma **picareta** equipada para usar este comando, caso não tenha, use o comando `/usuario-loja` e compre uma.', ephemeral=True)
+        return
+    
+    if tool['usages'] <= 0:
+        u.deleteTool('pickaxe')
+    
+    mineral = RawItems.getSubtype('ore',level_limit=u._level)
+    mineral:Item = random.choice(mineral)
+    e = discord.Embed(
+        title='Minerando',
+        description=f'Voce minerou um {mineral.name}!',
+        color=Funny_Color
+    )
+    e.set_footer(text=str(random.choice(tips)), icon_url=interaction.guild.icon or interaction.user.display_avatar)
+    if tool['item_data']['unbreakable'] == False:
+        tool['usages'] -= 1 
+        if tool['usages'] <= 0:
+            u.deleteTool('pickaxe')
+            await interaction.followup.send('Sua picareta foi quebrada, use o comando `/usuario-loja` e compre uma nova.', ephemeral=True)
+    
+    u.add_item(mineral.id, 1)
+    client.db.update_value('users', 'data_user', u.id, u.save())
+    client.db.save()
+    
+    await interaction.response.send_message(embed=e)
+    
+    
+@t.command(name='buscar',description='Busca materiais na região',guilds=[])
+@discord.app_commands.checks.cooldown(1, 10)
+async def _search(interaction: discord.Interaction):
+    findable:list[Item,] = RawItems.getFindable()
+    item = random.choice(findable)
+    amount = random.randint(1,3)
+    e = discord.Embed(
+        title='Buscando',
+        description=f'Voce encontrou x{amount} {item.name}!',
+        color=Funny_Color
+    )
+    e.set_footer(text=str(random.choice(tips)), icon_url=interaction.guild.icon or interaction.user.display_avatar)
+    
+    u = getUser(client, interaction.user.id)
+    u.add_item(item.id, amount)
+    
+    client.db.update_value('users', 'data_user', u.id, u.save())
+    client.db.save()
+    await interaction.response.send_message(embed=e)
+
+@t.command(name='derrubar', description='Obtenha madeira ao cortar arvores',guilds=[])
+async def _cut(interaction: discord.Interaction):
+    await interaction.response.send_message('Cortando...')
+    
+@t.command(name='suporte', description='Suporte',guilds=[])
+async def _support(interaction: discord.Interaction):
+    await interaction.response.send_message('Suporte')
+
+@t.command(name='equipamentos', description='Vê os equipamentos do usuário e permite equipa-los.',guilds=[])
+async def _equipamentos(interaction: discord.Interaction):
+    u = getUser(client, interaction.user.id)
+    
+    v = GearView(u,interaction.client)
+    
+    e = discord.Embed(
+        title='Equipamentos',
+        description=f'{v.pages[v.actual_page]['description']}\nEquipado atualmente: {v.actual_equipment() if v.user.getEquipped(v.pages[v.actual_page]['item_type']) != None else "Nenhum"}.',
+        color=0x00FF00
+    )
+    e.set_footer(text=f'Pág: {v.actual_page + 1}/{len(v.pages)}', icon_url=interaction.guild.icon or interaction.user.display_avatar)
+    
+    for i, item in enumerate(v.get_items_page(v.actual_page)):
+        e.add_field(name=f"{i+1}. {str(item['item_data']['name']).capitalize()}", value=f"x``{u.getToolById(item['item_data']['id'])['amount']}``\n{v.get_left_usages(item['item_data']['id'])}", inline=False)
+    
+    await interaction.response.send_message(embed=e, view=v)
+    
 @t.command(name='dar-item', description='Entregue um item para o usuário',guilds=[])
 async def _give_item(interaction: discord.Interaction, user: discord.User):
     if user == interaction.user: await interaction.response.send_message('Não é possível dar um item para si mesmo!', ephemeral=True)
@@ -81,9 +227,9 @@ async def _give_item(interaction: discord.Interaction, user: discord.User):
     )
     
     v = GiveItemView(u,u2,user,interaction.client)
-    for i, item in enumerate(u.tools.keys()):
-        
-        e.add_field(name=f"{i+1}. {Items.findById(item).name}", value=f"x``{u.tools[item]['amount']}``", inline=False)
+    for i, item in enumerate(v.get_items_page(v.actual_page)):
+        tool:Item = u.getToolById(item[0].id)
+        e.add_field(name=f"{i+1}. {tool['item_data']['name']}", value=f"x``{item[1]}``\n{(f'Usos ``{client.humanize_number(tool["usages"])}`` restantes.' if not tool['item_data']['unbreakable'] else 'Este item é inquebrável!')}", inline=False)
     
     await interaction.response.send_message(embed=e, view=v)
     
@@ -97,9 +243,8 @@ async def _inventory(interaction: discord.Interaction):
         title='Inventário do usuário',
         color=0x00FF00
     )
-    e.set_footer(text=f'Pág: {v.actual_page + 1}/{(len(v.user.tools.keys())//v.items_per_page) + 1}', icon_url=interaction.guild.icon or interaction.user.display_avatar)
-    for i, item in enumerate(v.get_items_page(v.actual_page)):
-        e.add_field(name=f"{i+1}. {item[0].name}", value=f"x``{item[1]}``", inline=False)
+    e.set_footer(text=f'Pág: {v.actual_page + 1}/{math.ceil(v.user.getTotalItems()/v.items_per_page)}', icon_url=interaction.guild.icon or interaction.user.display_avatar)
+    v.create_fields(embed=e, page=v.actual_page)
     await interaction.response.send_message(embed=e, view=v)
     
 @t.command(name='usuario-loja', description='Compre itens para o usuário',guilds=[])
@@ -115,11 +260,10 @@ async def _user_shop(interaction: discord.Interaction):
         color=Economy_Color
     )
         
-    for i, item in enumerate(ss.get_items_page(ss.actual_page)):
-        e.add_field(name=f"{i+1}. {item.name}", value=f"{item.description} - ``S${client.humanize_cash(item.price)}``", inline=False)
     
     v = UserShopView(ss, interaction.user, interaction.client)
-    e.set_footer(text=f'Pág: {v.actual_page + 1}/{(len(v.shop.items)+1)//6}', icon_url=interaction.guild.icon or interaction.user.display_avatar)
+    v.create_fields(e, v.actual_page)
+    e.set_footer(text=f'Pág: {v.actual_page + 1}/{math.ceil(len(v.shop.items)+1)/6}', icon_url=interaction.guild.icon or interaction.user.display_avatar)
     await interaction.response.send_message(embed=e, view=v,ephemeral=True)
 
 @t.command(name='roubar', description='Roube o dinheiro do usuário',guilds=[])
@@ -196,12 +340,16 @@ async def _pay(interaction: discord.Interaction, user: discord.User, amount: flo
             client.db.update_value('users', 'data_user', interaction.user.id, x.save())
             client.db.save()
             PayView.stop()
+            PayView.clear_items()
             # Send a DM to the user that received the payment
+            await interaction.edit_original_response(view=PayView)
             await user.send(f'Voce recebeu ``S${amount}`` de {interaction.user.display_name}.')
             await interaction.response.send_message(f'Pagou ``S${client.humanize_cash(amount)}`` para {user.mention}.', ephemeral=True)
-        async def declinePayment(interaction: discord.Interaction):
+        async def declinePayment(i2: discord.Interaction):
             PayView.stop()
-            await interaction.response.send_message(f'Pagamento para {user.mention} cancelado.', ephemeral=True)
+            PayView.clear_items()
+            await interaction.edit_original_response(view=PayView)
+            await i2.response.send_message(f'Pagamento para {user.mention} cancelado.', ephemeral=True)
         
         acceptButton = discord.ui.Button(label='Pagar 👍', style=discord.ButtonStyle.green, custom_id='y')
         declineButton = discord.ui.Button(label='Pagar 👎', style=discord.ButtonStyle.red, custom_id='n')
@@ -325,7 +473,7 @@ async def _add_cash(interaction: discord.Interaction, user_id: str, amount: int,
             user_id = interaction.user.id
         if user_id != None:
             if amount != None:
-                u = User(int(user_id), interaction.client)
+                u = getUser(client, int(user_id))
                 if local == 'bank':
                     u.bank += amount
                 elif local == 'wallet':
@@ -342,7 +490,7 @@ async def _set_exp(interaction: discord.Interaction, user_id: str, exp: int):
             user_id = interaction.user.id
         if user_id != None:
             if exp != None:
-                u = User(int(user_id), interaction.client)
+                u = getUser(client, int(user_id))
                 u.exp += exp
                 pdb.database.update_value('users', 'data_user', int(user_id), u.save())
                 pdb.database.save()

@@ -2,5 +2,7 @@
 *.pydb
 .vscode
 .venv
+*__pycache__
 __pycache__
 __pycache__/
+_.py
