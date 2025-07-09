@@ -136,8 +136,31 @@ class User:
             dataIsFrom:dict = self.tools
         return dataIsFrom[item_id]
     
-    def getTotalItems(self) -> int:
-        return len(self.items) + len(self.tools)
+    def getItems(self, category:ItemsTypes=None, subtype:str=None) -> list:
+        c = []
+        if category is not None:
+            for item in self.items.values():
+                if item['item_data']['item_type'] == category:
+                    c.append(item)
+            for tool in self.tools.values():
+                if tool['item_data']['item_type'] == category:
+                    c.append(tool)
+        elif subtype is not None:
+            for item in self.items.values():
+                if item['item_data']['subtype'] == subtype:
+                    c.append(item)
+            for tool in self.tools.values():
+                if tool['item_data']['subtype'] == subtype:
+                    c.append(tool)
+        else:
+            for item in self.items.values():
+                c.append(item)
+            for tool in self.tools.values():
+                c.append(tool)
+        return c
+    
+    def getTotalItems(self, category:ItemsTypes=None, subtype:str=None) -> int:
+        return len(self.getItems(category, subtype))
     
     def deleteTool(self, category:ItemsTypes):
         toolId = self._equipped_equipment[category]
@@ -177,7 +200,11 @@ class User:
                 'usages': i.usages * amount
             }
             
-            
+    def remove_item(self, item_id:int, amount:int = 1):
+        if str(item_id) in self.items.keys():
+            self.items[str(item_id)]['amount'] -= amount
+            if self.items[str(item_id)]['amount'] <= 0:
+                del self.items[str(item_id)]
     
     def load_data_user(self):
         for key in self.data_user.keys():

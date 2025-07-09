@@ -24,7 +24,8 @@ tips = [
     'Dinheiro no banco não pode ser roubado',
     'Donos dos servidores podem definir o imposto sobre transações',
     'Quanto maior sua reputação, mais experiência e dinheiro você ganha',
-    'Alguns itens desbloqueiam comandos'
+    'Alguns itens desbloqueiam comandos',
+    'Cada ícone desse bot foi feito a mão por *mrjuaum*'
 ]
 def getUser(client,user_id:int) -> User:
     if client.db.findByText('users', 'id', user_id)['id'] != None:

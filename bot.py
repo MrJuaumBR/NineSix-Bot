@@ -85,15 +85,19 @@ async def _casal(interaction: discord.Interaction, user1: discord.User, user2: d
     
 # Economy Commands
 @t.command(name='catalogo', description='Vê o catalogo de itens',guilds=[])
-async def _catalogo(interaction: discord.Interaction):
+async def _catalogo(interaction: discord.Interaction, category: ItemsTypes = None):
+    u = getUser(client, interaction.user.id)
+    
+    v = CatalogView(u, client, category)
     e = discord.Embed(
-        title='Catalogo de itens',
-        color=Funny_Color
+            title=f'Catalogo de itens {f"({str(category).capitalize()})" if category != None else ""}',
+            description=f'Com este comando você pode ver **todos** os itens do bot.\nTotal de itens: ``{len(RawItems.getAll())}``',
+            color=0x00FF00
     )
-    e.set_footer(text=str(random.choice(tips)), icon_url=interaction.guild.icon or interaction.user.display_avatar)
+    e.set_footer(text=f'Pág: {v.actual_page + 1}/{math.ceil(len(RawItems.getAll(category))/v.items_per_page)}', icon_url=interaction.guild.icon or interaction.user.display_avatar)
+    v.create_fields(e, v.actual_page)
     
-    
-    await interaction.response.send_message(embed=e)
+    await interaction.response.send_message(embed=e, view=v)
 
 @t.command(name='pescar', description='Pescar',guilds=[])
 @discord.app_commands.checks.cooldown(1, 3)
@@ -131,7 +135,43 @@ async def _fish(interaction: discord.Interaction):
     
     await interaction.response.send_message(embed=e)
     
+@t.command(name='forjar', description='Transforme seus minérios em barras!',guilds=[])
+async def _smelt(interaction: discord.Interaction, auto: bool = False):
+    u = getUser(client, interaction.user.id)
     
+    if auto:
+        ores = u.getItems(subtype='ore')
+        if len(ores) == 0:
+            await interaction.response.send_message('Vocês precisa ter pelo menos **minerado** algo.', ephemeral=True)
+            return
+        
+        can_smelt:list = []
+        for ore in ores:
+            if ore['amount'] >= 3:
+                can_smelt.append(ore)
+        if len(can_smelt) == 0:
+            await interaction.response.send_message('Você não consegue forjar nada.', ephemeral=True)
+            return
+        else:
+            text = f'Você forjou:\n'
+            for ore in can_smelt:
+                quantity = ore['amount']//3
+                u.remove_item(ore['item_data']['id'], quantity*3)
+                bar = RawItems.findById(f'{str(ore['item_data']["id"]).replace("ore_","bar_")}')
+                u.add_item(bar.id, quantity)
+                text += f'* {quantity}x {bar.name}\n'
+            
+            client.db.update_value('users', 'data_user', u.id, u.save())
+            client.db.save()
+            e = discord.Embed(
+                title='Forjando',
+                description=text,
+                color=discord.Color.dark_gray()
+            )
+            await interaction.response.send_message(embed=e)
+            return
+                
+    await interaction.response.send_message('Forjando...') 
     
 @t.command(name='minerar', description='Minerar',guilds=[])
 async def _mine(interaction: discord.Interaction):
@@ -234,16 +274,16 @@ async def _give_item(interaction: discord.Interaction, user: discord.User):
     await interaction.response.send_message(embed=e, view=v)
     
 @t.command(name='inventario', description='Vê o inventário do usuário',guilds=[])
-async def _inventory(interaction: discord.Interaction):
+async def _inventory(interaction: discord.Interaction, category: ItemsTypes= None):
     u = getUser(client, interaction.user.id)
     
     # View paginated
-    v = InventoryView(u,interaction.client)
+    v = InventoryView(u,interaction.client, category)
     e = discord.Embed(
         title='Inventário do usuário',
         color=0x00FF00
     )
-    e.set_footer(text=f'Pág: {v.actual_page + 1}/{math.ceil(v.user.getTotalItems()/v.items_per_page)}', icon_url=interaction.guild.icon or interaction.user.display_avatar)
+    e.set_footer(text=f'Pág: {v.actual_page + 1}/{math.ceil(v.user.getTotalItems(category)/v.items_per_page)}', icon_url=interaction.guild.icon or interaction.user.display_avatar)
     v.create_fields(embed=e, page=v.actual_page)
     await interaction.response.send_message(embed=e, view=v)
     

@@ -1,7 +1,12 @@
 from typing import Literal
-import math
+import math, json
 
-ItemsTypes = Literal['weapon', 'fishing_rod', 'pickaxe', 'axe', 'ores', 'woods', 'misc','material','fish']
+ItemsTypes = Literal['weapon', 'fishing_rod', 'pickaxe', 'axe', 'woods', 'material','fish']
+BotEmojis = json.load(open('data/emojis.json', 'rb'))
+
+def GetEmoji(id:str) -> str:
+    if f'ns_{id}' in BotEmojis.keys(): return BotEmojis[f'ns_{id}']
+    else: return ''
 
 class Product:
     name: str
@@ -27,7 +32,8 @@ class Item:
     unbreakable:bool = False
     subtype:str = None
     findable:bool = False
-    def __init__(self, id:str, name:str, usages:int, level:int, item_type:ItemsTypes, unbreakable:bool=False, subtype:str=None, findable:bool=False):
+    description:str = ''
+    def __init__(self, id:str, name:str, usages:int, level:int, item_type:ItemsTypes, unbreakable:bool=False, subtype:str=None, findable:bool=False, description:str=''):
         self.id = id
         self.name = name
         self.usages = usages
@@ -36,15 +42,18 @@ class Item:
         self.item_type = item_type
         self.subtype = str(subtype).lower()
         self.findable = findable
+        self.description = description
+        
+        self.emoji = f'ns_{self.id}'
 
 class ItemObj:
     values:list[Item,] = [
-        Item('fishing_rod_wood', 'Varinha de pesca(Madeira)', 5, 1, 'fishing_rod'), # Varinha de pesca
-        Item('fishing_rod_copper', 'Varinha de pesca(Cobre)', 26, 1, 'fishing_rod'),
-        Item('fishing_rod_silver', 'Varinha de pesca(Prata)', 131, 5, 'fishing_rod'),
-        Item('fishing_rod_gold', 'Varinha de pesca(Ouro)', 656, 10, 'fishing_rod'),
-        Item('fishing_rod_diamond', 'Varinha de pesca(Diamante)', 3281, 15, 'fishing_rod'),
-        Item('fishing_rod_obsidian', 'Varinha de pesca(Obsidiana)', 1, 20, 'fishing_rod', True),
+        Item('fishing_rod_wood', 'Varinha de pesca(Madeira)', 5, 1, 'fishing_rod', description='Uma varinha de pesca para inciantes.'), # Varinha de pesca
+        Item('fishing_rod_copper', 'Varinha de pesca(Cobre)', 26, 1, 'fishing_rod', description='Uma varinha de pesca para iniciantes. *Um pouco melhores...*'),
+        Item('fishing_rod_silver', 'Varinha de pesca(Prata)', 131, 5, 'fishing_rod', description='Uma varinha de pesca para amadores.'),
+        Item('fishing_rod_gold', 'Varinha de pesca(Ouro)', 656, 10, 'fishing_rod', description='Uma varinha de pesca para profissionais.'),
+        Item('fishing_rod_diamond', 'Varinha de pesca(Diamante)', 3281, 15, 'fishing_rod', description='Uma varinha de pesca para mestres.'),
+        Item('fishing_rod_obsidian', 'Varinha de pesca(Obsidiana)', 1, 20, 'fishing_rod', True, description='Uma varinha de pesca para mestres absolutos.'),
         Item('pickaxe_wood', 'Picareta(Madeira)', 5, 1, 'pickaxe'), # Picareta
         Item('pickaxe_copper', 'Picareta(Cobre)', 26, 1, 'pickaxe'),
         Item('pickaxe_silver', 'Picareta(Prata)', 131, 5, 'pickaxe'),
@@ -73,6 +82,7 @@ class ItemObj:
         Item('rock_stone','Pedra', 0, 1, 'material', True, 'rock', True),
         Item('plant_grass','Grama', 0, 1, 'material', True, 'plant', True),
         Item('plant_herbs','Ervas', 0, 1, 'material', True, 'plant', True),
+        Item('bone','Osso', 0, 1, 'material', True, 'bone', True),
         # Ores
         Item('ore_tin','Minério de Estanho', 0, 1, 'material', True, 'ore', True),
         Item('ore_copper','Minério de Cobre', 0, 1, 'material', True, 'ore', True),
@@ -94,6 +104,10 @@ class ItemObj:
         Item('bar_obsidian','Barra de Obsidiana', 0, 20, 'material', True, 'bar', True),
         Item('bar_manasteel','Barra de Manasteel', 0, 25, 'material', True, 'bar', True),
     ]
+    def getAll(self, category:ItemsTypes=None) -> list[Item,]:
+        if category is not None: return [item for item in self.values if item.item_type == category]
+        return self.values
+    
     def order_by_usages(self, order:Literal['asc','desc'],data_list:list[Item,]=None) -> list[Item]:
         if data_list is None: data_list = self.values
         # Needs to sort by usages and if unbreakable

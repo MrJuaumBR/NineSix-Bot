@@ -3,7 +3,7 @@
 - [ ] City System/Sistema de cidades;
 - [ ] Battle System/Sistema de batalhas;
 - [x] Fish System/Sistema de pescaria;
-- [ ] Mining System/Sistema de mineração;
+- [x] Mining System/Sistema de mineração;
 - [ ] Wood System/Sistema de cortar madeira;
 - [ ] Status System/Sistema de pontos;
 - [x] Dice System/Sistema de dados;
@@ -13,11 +13,12 @@
 - [ ] Titles/Títulos;
 - [ ] Pets/Animais de estimação;
 - [ ] Party/Equipe;
-- [ ] Eventos;
-- [ ] Reputação
-- [ ] Craft
-- [ ] Status Negativo (doença, etc)
-- [ ] Evolução dos Monstros
-- [ ] Monstros
-- [ ] Raids
-- [ ] Bosses Mundiais
+- [ ] Events/Eventos;
+- [ ] Reputation/Reputação;
+- [ ] Craft/Criação;
+- [ ] Negative Effect Status/Status de efeito negativo;
+- [ ] Monster Evolution/Evolução dos Monstros;
+- [ ] Monsters/Monstros;
+- [ ] Raids;
+- [ ] Bosses Mundiais;
+- [ ] Icons for items/Icones para os itens;
