@@ -25,7 +25,8 @@ tips = [
     'Donos dos servidores podem definir o imposto sobre transações',
     'Quanto maior sua reputação, mais experiência e dinheiro você ganha',
     'Alguns itens desbloqueiam comandos',
-    'Cada ícone desse bot foi feito a mão por *mrjuaum*'
+    'Cada ícone desse bot foi feito a mão por *mrjuaum*',
+    'O Latão é uma mistura de Cobre(2) e Ferro(1) = 2'
 ]
 def getUser(client,user_id:int) -> User:
     if client.db.findByText('users', 'id', user_id)['id'] != None:

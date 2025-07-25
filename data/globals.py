@@ -48,23 +48,23 @@ class Item:
 
 class ItemObj:
     values:list[Item,] = [
-        Item('fishing_rod_wood', 'Varinha de pesca(Madeira)', 5, 1, 'fishing_rod', description='Uma varinha de pesca para inciantes.'), # Varinha de pesca
-        Item('fishing_rod_copper', 'Varinha de pesca(Cobre)', 26, 1, 'fishing_rod', description='Uma varinha de pesca para iniciantes. *Um pouco melhores...*'),
-        Item('fishing_rod_silver', 'Varinha de pesca(Prata)', 131, 5, 'fishing_rod', description='Uma varinha de pesca para amadores.'),
-        Item('fishing_rod_gold', 'Varinha de pesca(Ouro)', 656, 10, 'fishing_rod', description='Uma varinha de pesca para profissionais.'),
-        Item('fishing_rod_diamond', 'Varinha de pesca(Diamante)', 3281, 15, 'fishing_rod', description='Uma varinha de pesca para mestres.'),
+        Item('fishing_rod_wood', 'Varinha de pesca(Madeira)', 3, 1, 'fishing_rod', description='Uma varinha de pesca para inciantes.'), # Varinha de pesca
+        Item('fishing_rod_copper', 'Varinha de pesca(Cobre)', 15, 1, 'fishing_rod', description='Uma varinha de pesca para iniciantes. *Um pouco melhores...*'),
+        Item('fishing_rod_silver', 'Varinha de pesca(Prata)', 45, 5, 'fishing_rod', description='Uma varinha de pesca para amadores.'),
+        Item('fishing_rod_gold', 'Varinha de pesca(Ouro)', 200, 10, 'fishing_rod', description='Uma varinha de pesca para profissionais.'),
+        Item('fishing_rod_diamond', 'Varinha de pesca(Diamante)', 500, 15, 'fishing_rod', description='Uma varinha de pesca para mestres.'),
         Item('fishing_rod_obsidian', 'Varinha de pesca(Obsidiana)', 1, 20, 'fishing_rod', True, description='Uma varinha de pesca para mestres absolutos.'),
-        Item('pickaxe_wood', 'Picareta(Madeira)', 5, 1, 'pickaxe'), # Picareta
-        Item('pickaxe_copper', 'Picareta(Cobre)', 26, 1, 'pickaxe'),
-        Item('pickaxe_silver', 'Picareta(Prata)', 131, 5, 'pickaxe'),
-        Item('pickaxe_gold', 'Picareta(Ouro)', 656, 10, 'pickaxe'),
-        Item('pickaxe_diamond', 'Picareta(Diamante)', 3281, 15, 'pickaxe'),
+        Item('pickaxe_wood', 'Picareta(Madeira)', 3, 1, 'pickaxe'), # Picareta
+        Item('pickaxe_copper', 'Picareta(Cobre)', 15, 1, 'pickaxe'),
+        Item('pickaxe_silver', 'Picareta(Prata)', 45, 5, 'pickaxe'),
+        Item('pickaxe_gold', 'Picareta(Ouro)', 200, 10, 'pickaxe'),
+        Item('pickaxe_diamond', 'Picareta(Diamante)', 500, 15, 'pickaxe'),
         Item('pickaxe_obsidian', 'Picareta(Obsidiana)', 1, 20, 'pickaxe', True),
-        Item('axe_wood', 'Machado(Madeira)', 5, 1, 'axe'), # Machado
-        Item('axe_copper', 'Machado(Cobre)', 26, 1, 'axe'),
-        Item('axe_silver', 'Machado(Prata)', 131, 5, 'axe'),
-        Item('axe_gold', 'Machado(Ouro)', 656, 10, 'axe'),
-        Item('axe_diamond', 'Machado(Diamante)', 3281, 15, 'axe'),
+        Item('axe_wood', 'Machado(Madeira)', 3, 1, 'axe'), # Machado
+        Item('axe_copper', 'Machado(Cobre)', 15, 1, 'axe'),
+        Item('axe_silver', 'Machado(Prata)', 45, 5, 'axe'),
+        Item('axe_gold', 'Machado(Ouro)', 200, 10, 'axe'),
+        Item('axe_diamond', 'Machado(Diamante)', 500, 15, 'axe'),
         Item('axe_obsidian', 'Machado(Obsidiana)', 1, 20, 'axe', True),
         Item('wood_oak', 'Madeira de carvalho', 1, 1, 'woods'), # Woods
         # Fishes
@@ -104,6 +104,18 @@ class ItemObj:
         Item('bar_obsidian','Barra de Obsidiana', 0, 20, 'material', True, 'bar', True),
         Item('bar_manasteel','Barra de Manasteel', 0, 25, 'material', True, 'bar', True),
     ]
+    
+    crafting = {
+        'ore_tin': 'bar_tin',
+        'ore_copper': 'bar_copper',
+        'ore_silver': 'bar_silver',
+        'ore_iron': 'bar_iron',
+        'ore_brass': 'bar_brass',
+        'ore_gold': 'bar_gold',
+        'ore_diamond': 'bar_diamond',
+        'ore_obsidian': 'bar_obsidian',
+        'ore_manasteel': 'bar_manasteel',
+    }
     def getAll(self, category:ItemsTypes=None) -> list[Item,]:
         if category is not None: return [item for item in self.values if item.item_type == category]
         return self.values
@@ -119,8 +131,9 @@ class ItemObj:
         if level_limit is not None: return [item for item in self.values if item.item_type == category and item.level <= level_limit]
         else: return [item for item in self.values if item.item_type == category]
     
-    def getSubtype(self, subtype:str, level_limit:int=None) -> list[Item]:
-        if level_limit is not None: return [item for item in self.values if item.subtype == str(subtype).lower() and item.level <= level_limit]
+    def getSubtype(self, subtype:str, level_limit:int=None, exclude:list[str,]=None) -> list[Item]:
+        if exclude is not None: return [item for item in self.values if item.subtype == str(subtype).lower() and item.name not in exclude]
+        elif level_limit is not None: return [item for item in self.values if item.subtype == str(subtype).lower() and item.level <= level_limit]
         else: return [item for item in self.values if item.subtype == str(subtype).lower()]
     
     def getFindable(self) -> list[Item]:

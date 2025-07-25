@@ -2,3 +2,4 @@ discord.py
 --extra-index-url https://test.pypi.org/simple/
 JPyDB
 dotenv
+ollama

@@ -144,17 +144,13 @@ async def _smelt(interaction: discord.Interaction, auto: bool = False):
         if len(ores) == 0:
             await interaction.response.send_message('Vocês precisa ter pelo menos **minerado** algo.', ephemeral=True)
             return
-        
-        can_smelt:list = []
-        for ore in ores:
-            if ore['amount'] >= 3:
-                can_smelt.append(ore)
-        if len(can_smelt) == 0:
-            await interaction.response.send_message('Você não consegue forjar nada.', ephemeral=True)
+        ores = [ore for ore in ores if ore['amount'] >= 3]
+        if len(ores) == 0:
+            await interaction.response.send_message('Você não consegue forjar nada atualmente.', ephemeral=True)
             return
         else:
             text = f'Você forjou:\n'
-            for ore in can_smelt:
+            for ore in ores:
                 quantity = ore['amount']//3
                 u.remove_item(ore['item_data']['id'], quantity*3)
                 bar = RawItems.findById(f'{str(ore['item_data']["id"]).replace("ore_","bar_")}')
@@ -170,8 +166,19 @@ async def _smelt(interaction: discord.Interaction, auto: bool = False):
             )
             await interaction.response.send_message(embed=e)
             return
-                
-    await interaction.response.send_message('Forjando...') 
+    else:
+        ores = u.getItems(subtype='ore')
+        if len(ores) == 0: 
+            await interaction.response.send_message('Vocês precisa ter pelo menos **minerado** algo.', ephemeral=True)
+            return
+        ores = [x for x in ores if x['amount'] >= 3]
+        if len(ores) == 0: 
+            await interaction.response.send_message('Vocês precisa ter pelo menos 3x minérios brutos para forjar.', ephemeral=True)
+            return
+        
+        v = SmeltView(u, client, ores)
+        await interaction.response.send_message(embed=v.embed(interaction), view=v)
+        return
     
 @t.command(name='minerar', description='Minerar',guilds=[])
 async def _mine(interaction: discord.Interaction):
@@ -188,7 +195,7 @@ async def _mine(interaction: discord.Interaction):
     if tool['usages'] <= 0:
         u.deleteTool('pickaxe')
     
-    mineral = RawItems.getSubtype('ore',level_limit=u._level)
+    mineral = RawItems.getSubtype('ore',level_limit=u._level, exclude=['ore_brass'])
     mineral:Item = random.choice(mineral)
     e = discord.Embed(
         title='Minerando',

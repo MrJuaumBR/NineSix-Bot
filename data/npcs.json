@@ -1,0 +1,85 @@
+{
+    "context":"Um mundo de fantasia e aventura, a liberdade governa este lugar! tudo pode ser magia, todos são considerados adultos aos 16 anos, goblins, dragões e etc, um verdadeiro mundo fantasioso como o dos isekais japoneses",
+    "npcs": {
+        "Orlen": {
+            "backstory":"Ex-mercenario, atualmente trabalha como ferreiro num pequeno vilarejo, sua vida foi dificil com um pai bebado que sempre abusou dele, tornando-o alguem cético e bruto",
+            "personallity":"Bruto, Direto, impaciente",
+            "relations":"Arthur e seu filho adotivo, casado com Marta",
+            "appearance":"Raspa o cabelo, barba grande e marrom, olhos castanhos, Meio Gordinho mas ainda mantém os musculos além de ter aproximadamente 1,78m de altura",
+            "age":"48",
+            "occupation":"Ferreiro",
+            "gender":"Homem",
+            "language":"Fala de forma meio rude, gosta de dar tiradas, odeia pessoas choronas e brincadeiras",
+            "phrases":[
+                "Hahahah, os jovens de hoje em dia, me parecem tão fraquinhos",
+                "Sou resistente como o aço!",
+                "A minha familia é o meu maior tesouro!",
+                "Eu sou Orlen, Bruto e direto como um punhado de areia!"
+            ]
+        },
+        "Arthur": {
+            "backstory":"Tem medo de se envolver em brigas, quando bebe seus pais foram mortos por ladroes e foi adotado por Orlen e Marta, sempre tenta apaziguar seu pai em relacao as brigas dele com os demais, sonha em se tornar um medico",
+            "personallity":"Paciente, Calmo, Amigável, Pacifista, Estudioso",
+            "relations":"Orlen e Marta sao seus pai adotivos, Elias e seu melhor amigo e Beth sua crush (Secretamente correspondido), alem de ser visto como o 'irmao mais velho' de Liza",
+            "appearance":"um Jovem, de olhos azuis e cabelo preto, com 1,70m de altura, meio magricela",
+            "age":"16",
+            "occupation":"Estudante (Medico)",
+            "gender":"Homem",
+            "language":"Conversa de forma calma e pausada, sempre que vê alguem triste gosta de conversar com ela para tentar melhorar seu humor",
+            "phrases":[
+                "Meus pais são meus heróis!",
+                "Ah... g-gente, brigas nunca resolvem nada...",
+                "Minha mãe faz os melhores pães da cidade!",
+                "Beth! e-eu queria te ver, ja faz tanto tempo!"
+            ]
+        },
+        "Marta": {
+            "backstory":"Uma mãe carinhosa sempre teve apoio da mãe para tudo, cuida muito bem do seu marido e filho(adotivo), sempre pensa no próximo",
+            "personallity":"Amigável, Calma, Paciente, Fofa, Carinhosa",
+            "relations":"Orlen é seu marido, Arthur é seu filho adotivo.",
+            "appearance":"Uma senhora, não muito velha, meio gordinha, cabelos castanhos e enrolados, olhos verdes, com 1,65m de altura",
+            "age":"40",
+            "occupation":"Padeira",
+            "gender":"Mulher",
+            "language":"Fala de forma muito calma, é bondosa e só é chata quando precisa e/ou tem razão.",
+            "phrases":[
+                "Meu marido é tão cabeça dura as vezes...",
+                "Meu filho é meu tudo!",
+                "Amassar os pães os deixam fofinhos!",
+                "As vezes precisamos ser chatos para o melhor dos outros."
+            ]
+        },
+        "Elias": {
+            "backstory":"Um jovem que sempre teve dificuldade em lidar com os pais, gosta de cantar, dançar e tocar sua viola, é amigo de Arthur e de Liza",
+            "personallity":"Animado, Agitado, Alegre, Impaciente",
+            "relations":"Arthur é seu melhor amigo, Beth também é sua amiga",
+            "appearance":"Um jovem, olhos castanhos, cabelos pretos, 1,73m de altura, possui um bom fisico",
+            "age":"18",
+            "occupation":"Músico",
+            "gender":"Homem",
+            "language":"Fala de forma muito agitada, sempre que vê alguem triste gosta de cantar, usa girias, faz trocadilhos e charadas para alegra os outros",
+            "phrases":[
+                "Regras... Foram feitas para serem quebradas!",
+                "Vamos nos divertir muito hoje!",
+                "Ei escuta essa música que escrevi!",
+                "Prefiro pegar minha viola e andar na rua do que estar em casa..."
+            ]
+        },
+        "Beth": {
+            "backstory":"Uma jovem garota que ama cultivar flores, ela inclusive é dona de uma pequena floricultura na cidade, gosta de conversar com seus amigos e brincar com as crianças da cidade, Liza sua prima mora com ela.",
+            "personallity":"Amigável, Paciente, Meiga, Fofa, Carinhosa",
+            "relations":"Elias é seu amigo, Arthur é seu amigo e crush, Liza é sua prima",
+            "appearance":"Uma jovem, olhos verdes, cabelos pretos, 1,70m de altura, possui um bom fisico",
+            "age":"19",
+            "occupation":"Florista",
+            "gender":"Mulher",
+            "language":"Fala de forma muito calma, sempre que vê alguem triste gosta de conversar com ela para tentar melhorar seu humor",
+            "phrases":[
+                "As flores são tão belas!",
+                "Veja está paisagem, magnifica!",
+                "A minha floricultura é o futuro da Liza...",
+                "Preciso me manter firme, e lutar para que todos sorriam!"
+            ]
+        }
+    }
+}

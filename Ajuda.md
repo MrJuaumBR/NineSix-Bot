@@ -1,0 +1,322 @@
+# Geral
+- Toda ferramenta e arma possui durabilidade, algumas tem durabilidade infinita, ou seja, são **Inquebráveis**
+- Para usar as ferramentas é necessário possuir o nível delas, você pode as ter no inventário, mas não será capaz de utiliza-las.
+- Algumas ações necessitam de ferramentas certas
+- `/usuario-loja` é o local aonde você pode adquirir suas armas e ferramentas, é uma loja apenas para itens aplicáveis diretamente ao usuário.
+- `/servidor-loja` é uma loja aplicável apenas ao servidor(ex: Multiplicador de experiência).
+- Após comprar uma ferramenta/arma, você precisa equipa-la usando o comando `/equipamentos` e então ir até a página do respectivo equipamento.
+- Se estiver curioso em relação aos itens, você pode olhar o `/catalogo` que irá te dar uma visão de todos os itens do bot.
+
+# Buscar
+- A busca é uma ação útil para encontrar materiais básicos.
+- A quantidade que vem dos itens é aleatório(1-3), bem como o item que vem.
+- Tem um cooldown de 10 segundos.
+- Os itens podem vir com qualquer nível.
+<table>
+    <tr>
+        <th>
+            Item
+        </th>
+        <th>
+            Id
+        </th>
+    </tr>
+    <tr>
+        <td>
+            Graveto
+        </td>
+        <td>
+            wood_stick
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Pedra
+        </td>
+        <td>
+            rock_stone
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Grama
+        </td>
+        <td>
+            plant_grass
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Ervas
+        </td>
+        <td>
+            plant_herbs
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Osso
+        </td>
+        <td>
+            bone
+        </td>
+    </tr>
+</table>
+
+# Mineração
+- Para minerar é necessário uma [picareta equipada](#geral)
+- Você só pode minerar minérios que forem do seu nível ou inferiores.
+- Ao minerar você gasta durabilidade da picareta.
+<table>
+    <caption>Picaretas</captions>
+    <tr>
+        <th>
+            Item
+        </th>
+        <th>
+            Nível
+        </th>
+        <th>
+            Durabilidade
+        </th>
+        <th>
+            Preço
+        </th>
+    </tr>
+    <tr>
+        <td>
+            Picareta de Madeira(pickaxe_wood)
+        </td>
+        <td>
+            1
+        </td>
+        <td>
+            3
+        </td>
+        <td>
+            100
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Picareta de Cobre(pickaxe_copper)
+        </td>
+        <td>
+            1
+        </td>
+        <td>
+            15
+        </td>
+        <td>
+            500
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Picareta de Prata(pickaxe_silver)
+        </td>
+        <td>
+            1
+        </td>
+        <td>
+            45
+        </td>
+        <td>
+            2.500
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Picareta de Ouro(pickaxe_gold)
+        </td>
+        <td>
+            1
+        </td>
+        <td>
+            200
+        </td>
+        <td>
+            10.000
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Picareta de Diamante(pickaxe_diamond)
+        </td>
+        <td>
+            1
+        </td>
+        <td>
+            500
+        </td>
+        <td>
+            50.000
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Picareta de Obsidian(pickaxe_obsidian)
+        </td>
+        <td>
+            1
+        </td>
+        <td>
+            <b>Inquebrável<b>
+        </td>
+        <td>
+            1.000.000
+        </td>
+    </tr>
+</table>
+
+# Crafts
+- Misturas devem ser craftadas e então forjadas(ex: Latão)
+  
+...
+
+# Forja
+- Para forjar qualquer minério é necessário ter **3 Minérios Brutos**
+- Use o comando `/forjar` para forjar, o parâmetro _auto_ é usado para forjar todos os minérios possíveis automaticamente.
+- Cada minério tem seu próprio nível para ser trabalhado, use o `/catalogo` para ver os níveis.
+<table>
+    <tr>
+        <th>
+            Item
+        </th>
+        <th>
+            Quantidade
+        </th>
+        <th>
+            Resultado
+        </th>
+        <th>
+            Nível
+        </th>
+    </tr>
+    <tr>
+        <td>
+            Minério de estanho(ore_tin)
+        </td>
+        <td>
+            3x
+        </td>
+        <td>
+            Barra de estanho(bar_tin)
+        </td>
+        <td>
+            Nvl. 1
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Minério de cobre(ore_copper)
+        </td>
+        <td>
+            3x
+        </td>
+        <td>
+            Barra de cobre(bar_copper)
+        </td>
+        <td>
+            Nvl. 1
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Minério de prata(ore_silver)
+        </td>
+        <td>
+            3x
+        </td>
+        <td>
+            Barra de prata(bar_silver)
+        </td>
+        <td>
+            Nvl. 1
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Minério de Ferro(ore_iron)
+        </td>
+        <td>
+            3x
+        </td>
+        <td>
+            Barra de ferro(bar_iron)
+        </td>
+        <td>
+            Nvl. 10
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Minério de latão(ore_brass)
+        </td>
+        <td>
+            3x
+        </td>
+        <td>
+            Barra de latão(bar_brass)
+        </td>
+        <td>
+            Nvl. 10
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Minério de ouro(ore_gold)
+        </td>
+        <td>
+            3x
+        </td>
+        <td>
+            Barra de ouro(bar_gold)
+        </td>
+        <td>
+            Nvl. 10
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Diamante(ore_diamond)
+        </td>
+        <td>
+            3x
+        </td>
+        <td>
+            Barra de Diamante(bar_diamond)
+        </td>
+        <td>
+            Nvl. 15
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Obsidiana(ore_obsidian)
+        </td>
+        <td>
+            3x
+        </td>
+        <td>
+            Barra de obsidian(bar_obsidian)
+        </td>
+        <td>
+            Nvl. 20
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Minério de Manasteel(ore_manasteel)
+        </td>
+        <td>
+            3x
+        </td>
+        <td>
+            Barra de Manasteel(bar_manasteel)
+        </td>
+        <td>
+            Nvl. 25
+        </td>
+    </tr>
+</table>

@@ -21,4 +21,4 @@
 - [ ] Monsters/Monstros;
 - [ ] Raids;
 - [ ] Bosses Mundiais;
-- [ ] Icons for items/Icones para os itens;
+- [x] Icons for items/Icones para os itens;

@@ -188,7 +188,7 @@ class InventoryView(dui.View):
             else:
                 d = f'\nUsos ``{self.client.humanize_number(uItem["usages"])}`` restantes.'
             formatted_item_text = f'x``{item[1]}``{d}'
-            embed.add_field(name=f"{i+1}. {str(item[0].name).capitalize()}", value=formatted_item_text, inline=False)
+            embed.add_field(name=f"{i+1}. {GetEmoji(item[0].id)}{str(item[0].name).capitalize()}", value=formatted_item_text, inline=False)
     
     async def update_embed(self, interaction: discord.Interaction):
         e = discord.Embed(
@@ -432,3 +432,116 @@ class CatalogView(dui.View):
             self.actual_page = 0
             
         await self.update_embed(interaction)
+        
+class SmeltView(dui.View):
+    def __init__(self, user:UserType,client:discord.Client, ores:list):
+        super().__init__()
+        self.user = user
+        self.client = client
+        
+        self.actual_page = 0
+        self.items_per_page = 8
+        self.ores = ores
+        
+        self.UiSelect = None
+        self.selected = []
+        if len(self.ores) > 0:
+            self.UiSelect = dui.Select(placeholder='Selec. os minérios.', options=self.get_options(), min_values=1, max_values=len(self.ores))
+            self.UiSelect.callback = self.UiSelectCallback
+            self.add_item(self.UiSelect)
+            
+    
+    def get_items_page(self, page:int):
+        return [ore for ore in self.ores][page * self.items_per_page : (page + 1) * self.items_per_page]
+    def get_options(self):
+        return [discord.SelectOption(label=ore['item_data']['name'], value=ore['item_data']['id']) for ore in self.ores]
+    
+    async def UiSelectCallback(self, interaction: discord.Interaction):
+        if interaction.user.id != self.user.id:
+            await interaction.response.send_message('Apenas o dono do inventário pode interagir!', ephemeral=True)
+            return
+
+        self.selected = self.UiSelect.values
+        await interaction.response.defer()
+    
+    def create_fields(self, e:discord.Embed, page:int):
+        items = self.get_items_page(page)
+        
+        for i, item_data in enumerate(items):
+            item = RawItems.findById(item_data['item_data']['id'])
+            e.add_field(name=f"{i+1}. {GetEmoji(item.id)}{item.name}", value=f'Nível: **{item.level}**\n``x{self.user.getItemById(item.id)['amount']}``', inline=True)
+    def embed(self, interaction:discord.Interaction):
+        # Update Select Ui
+        self.remove_item(self.UiSelect)
+        self.UiSelect = dui.Select(placeholder='Selec. os minérios.', options=self.get_options(), min_values=1, max_values=len(self.ores))
+        self.UiSelect.callback = self.UiSelectCallback
+        self.add_item(self.UiSelect)
+        
+        e = discord.Embed(
+            title=f'Forja',
+            description=f'O que você deseja forjar?\nTotal de itens: ``{len(self.ores)}``',
+            color=0x00FF00
+        )
+        e.set_footer(text=f'Pág: {self.actual_page + 1}/{math.ceil(len(self.ores)/self.items_per_page)}', icon_url=interaction.guild.icon or interaction.user.display_avatar)
+        self.create_fields(e, self.actual_page)
+        return e
+    
+    async def update_embed(self, interaction:discord.Interaction):
+        await interaction.response.edit_message(embed=self.embed(interaction), view=self)
+    
+    @dui.button(label='Anterior', style=discord.ButtonStyle.gray)
+    async def back(self, interaction: discord.Interaction, button: dui.button):
+        if interaction.user.id != self.user.id:
+            await interaction.response.send_message('Apenas o dono do inventário pode interagir!', ephemeral=True)
+            return
+        self.actual_page -= 1
+        if self.actual_page < 0:
+            self.actual_page = math.ceil(len(self.ores)/self.items_per_page)
+            
+        await self.update_embed(interaction)
+    
+    @dui.button(label='Próximo', style=discord.ButtonStyle.gray)
+    async def next(self, interaction: discord.Interaction, button: dui.button):
+        if interaction.user.id != self.user.id:
+            await interaction.response.send_message('Apenas o dono do inventário pode interagir!', ephemeral=True)
+            return
+        self.actual_page += 1
+        if self.actual_page >= math.ceil(len(self.ores)/self.items_per_page):
+            self.actual_page = 0
+            
+        await self.update_embed(interaction)
+        
+    @dui.button(label='Forjar', style=discord.ButtonStyle.green)
+    async def smelt(self, interaction: discord.Interaction, button: dui.button):
+        if interaction.user.id != self.user.id:
+            await interaction.response.send_message('Apenas o dono do inventário pode interagir!', ephemeral=True)
+            return
+        self.clear_items()
+        self.stop()
+        forged_items:str = f''
+        for ind, item_data in enumerate(self.selected):
+            item = RawItems.findById(item_data)
+            crafted = RawItems.crafting[item.id]
+            craft_amount = int(self.user.getItemById(item.id)['amount']/3)
+            self.user.remove_item(item.id, craft_amount)
+            self.user.add_item(crafted, craft_amount)
+            forged_items += f'``x{craft_amount}`` {item.name} -> {RawItems.findById(crafted).name.capitalize()}{"\n" if ind < len(self.selected)-1 else ""}'
+        
+        emb = discord.Embed(
+            title='Forja',
+            description=f'Você forjou:\n{forged_items}',
+            color=0x00FF00            
+        )
+        await interaction.response.edit_message(view=self)
+        await interaction.response.send_message(embed=emb)
+    
+    
+    @dui.button(label='Fechar', style=discord.ButtonStyle.red)
+    async def close(self, interaction: discord.Interaction, button: dui.button):
+        if interaction.user.id != self.user.id:
+            await interaction.response.send_message('Apenas o dono do inventário pode interagir!', ephemeral=True)
+            return
+        self.clear_items()
+        self.stop()
+        await interaction.response.edit_message(view=None)
+    

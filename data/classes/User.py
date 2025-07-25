@@ -136,7 +136,7 @@ class User:
             dataIsFrom:dict = self.tools
         return dataIsFrom[item_id]
     
-    def getItems(self, category:ItemsTypes=None, subtype:str=None) -> list:
+    def getItems(self, category:ItemsTypes=None, subtype:str=None, exclude:list[str,]=[]) -> list:
         c = []
         if category is not None:
             for item in self.items.values():
@@ -154,9 +154,11 @@ class User:
                     c.append(tool)
         else:
             for item in self.items.values():
-                c.append(item)
+                if item['item_data']['id'] not in exclude:
+                    c.append(item)
             for tool in self.tools.values():
-                c.append(tool)
+                if tool['item_data']['id'] not in exclude:
+                    c.append(tool)
         return c
     
     def getTotalItems(self, category:ItemsTypes=None, subtype:str=None) -> int:
