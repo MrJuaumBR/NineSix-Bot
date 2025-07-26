@@ -1,0 +1,138 @@
+{
+    "emojis":{
+        "ns_pickaxe_wood":"<:ns_pickaxe_wood:1392306466714681455>",
+        "ns_pickaxe_copper":"<:ns_pickaxe_copper:1392306525195731086>",
+        "ns_pickaxe_silver":"<:ns_pickaxe_silver:1392306572390170810>",
+        "ns_pickaxe_gold":"<:ns_pickaxe_gold:1392306635200008282>",
+        "ns_pickaxe_diamond":"<:ns_pickaxe_diamond:1392306673892196483>",
+        "ns_pickaxe_obsidian":"<:ns_pickaxe_obsidian:1392306727164055552>",
+        "ns_pickaxe_manasteel":"<:ns_pickaxe_manasteel:1392306802028314764>",
+        "ns_fishing_rod_wood":"<:ns_fishing_rod_wood:1392309085621325906>",
+        "ns_fishing_rod_copper":"<:ns_fishing_rod_copper:1392309183445209139>",
+        "ns_fishing_rod_silver":"<:ns_fishing_rod_silver:1392309210372378775>",
+        "ns_fishing_rod_gold":"<:ns_fishing_rod_gold:1392309246036672532>",
+        "ns_fishing_rod_diamond":"<:ns_fishing_rod_diamond:1392309271680782366>",
+        "ns_fishing_rod_obsidian":"<:ns_fishing_rod_obsidian:1392309305100734535>",
+        "ns_fishing_rod_manasteel":"<:ns_fishing_rod_manasteel:1392309347270525049>",
+        "ns_axe_wood":"<:ns_axe_wood:1392500288702910554>",
+        "ns_axe_copper":"<:ns_axe_copper:1392500347347664926>",
+        "ns_axe_silver":"<:ns_axe_silver:1392500382827024385>",
+        "ns_axe_gold":"<:ns_axe_gold:1392500413730656286>",
+        "ns_axe_diamond":"<:ns_axe_diamond:1392501065441738852>",
+        "ns_axe_obsidian":"<:ns_axe_obsidian:1392500438800142528>",
+        "ns_axe_manasteel":"<:ns_axe_manasteel:1392500466646257704>",
+        "ns_bar_copper":"<:ns_bar_copper:1398289491847938068>",
+        "ns_bar_silver":"<:ns_bar_silver:1398289580700205056>",
+        "ns_bar_iron":"<:ns_bar_iron:1398290189683523645>",
+        "ns_bar_gold":"<:ns_bar_gold:1398290251943907410>",
+        "ns_bar_diamond":"<:ns_bar_diamond:1398290284470730782>",
+        "ns_bar_obsidian":"<:ns_bar_obsidian:1398290319153561650>",
+        "ns_bar_manasteel":"<:ns_bar_manasteel:1398290353886466150>",
+        "ns_wood_oak":"<:ns_wood_oak:1398290396538339440>",
+        "ns_bone":"<:ns_bone:1398290483041534104>"
+    },
+    "crafts": {
+        "ore_brass":{
+            "items":[
+                {"id":"ore_copper", "amount":2},
+                {"id":"ore_iron", "amount":1}
+            ],
+            "level":10,
+            "local":"craft"
+        },
+        "iron_spikes":{
+            "items":[
+                {"id":"bar_iron", "amount":1}
+            ],
+            "level":10,
+            "local":"craft"
+        },
+        "weapon_club":{
+            "items":[
+                {"id":"wood_stick", "amount":3}
+            ],
+            "level":1,
+            "local":"craft"
+        },
+        "weapon_silver_knife":{
+            "items":[
+                {"id":"wood_stick", "amount":1},
+                {"id":"bar_silver", "amount":1}
+            ],
+            "level":1,
+            "local":"craft"
+        },
+        "weapon_copper_knife":{
+            "items":[
+                {"id":"wood_stick", "amount":1},
+                {"id":"bar_copper", "amount":1}
+            ],
+            "level":1,
+            "local":"craft"
+        },
+        "weapon_club_spiked":{
+            "items":[
+                {"id":"weapon_club", "amount":1},
+                {"id":"iron_spikes", "amount":1}
+            ],
+            "level":10,
+            "local":"craft"
+        },
+        "bar_copper":{
+            "items":[
+                {"id":"ore_copper", "amount":3}
+            ],
+            "level":1,
+            "local":"smelt"
+        },
+        "bar_silver":{
+            "items":[
+                {"id":"ore_silver", "amount":3}
+            ],
+            "level":1,
+            "local":"smelt"
+        },
+        "bar_brass":{
+            "items":[
+                {"id":"ore_brass", "amount":3}
+            ],
+            "level":10,
+            "local":"smelt"
+        },
+        "bar_iron":{
+            "items":[
+                {"id":"ore_iron", "amount":3}
+            ],
+            "level":10,
+            "local":"smelt"
+        },
+        "bar_gold":{
+            "items":[
+                {"id":"ore_gold", "amount":3}
+            ],
+            "level":10,
+            "local":"smelt"
+        },
+        "bar_diamond":{
+            "items":[
+                {"id":"ore_diamond", "amount":3}
+            ],
+            "level":15,
+            "local":"smelt"
+        },
+        "bar_obsidian":{
+            "items":[
+                {"id":"ore_obsidian", "amount":3}
+            ],
+            "level":20,
+            "local":"smelt"
+        },
+        "bar_manasteel":{
+            "items":[
+                {"id":"ore_manasteel", "amount":3}
+            ],
+            "level":25,
+            "local":"smelt"
+        }
+    }
+}

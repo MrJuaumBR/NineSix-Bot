@@ -434,10 +434,12 @@ class CatalogView(dui.View):
         await self.update_embed(interaction)
         
 class SmeltView(dui.View):
-    def __init__(self, user:UserType,client:discord.Client, ores:list):
+    local:str = 'smelt'
+    def __init__(self, user:UserType,client:discord.Client, ores:list, crafts:dict):
         super().__init__()
         self.user = user
         self.client = client
+        self.crafts = crafts
         
         self.actual_page = 0
         self.items_per_page = 8
@@ -516,14 +518,12 @@ class SmeltView(dui.View):
         if interaction.user.id != self.user.id:
             await interaction.response.send_message('Apenas o dono do inventário pode interagir!', ephemeral=True)
             return
-        self.clear_items()
-        self.stop()
         forged_items:str = f''
         for ind, item_data in enumerate(self.selected):
             item = RawItems.findById(item_data)
-            crafted = RawItems.crafting[item.id]
+            crafted = RawItems.getOreBar(item.id)
             craft_amount = int(self.user.getItemById(item.id)['amount']/3)
-            self.user.remove_item(item.id, craft_amount)
+            self.user.remove_item(item.id, craft_amount*3)
             self.user.add_item(crafted, craft_amount)
             forged_items += f'``x{craft_amount}`` {item.name} -> {RawItems.findById(crafted).name.capitalize()}{"\n" if ind < len(self.selected)-1 else ""}'
         
@@ -532,8 +532,11 @@ class SmeltView(dui.View):
             description=f'Você forjou:\n{forged_items}',
             color=0x00FF00            
         )
-        await interaction.response.edit_message(view=self)
-        await interaction.response.send_message(embed=emb)
+        self.client.db.update_value('users', 'data_user', self.user.id, self.user.save())
+        self.client.db.save()
+        self.clear_items()
+        self.stop()
+        await interaction.response.edit_message(embed=emb, view=self)
     
     
     @dui.button(label='Fechar', style=discord.ButtonStyle.red)
@@ -545,3 +548,138 @@ class SmeltView(dui.View):
         self.stop()
         await interaction.response.edit_message(view=None)
     
+class CraftView(dui.View):
+    local:str = 'craft'
+    def __init__(self, user:UserType, client:discord.Client, crafts:dict):
+        super().__init__()
+        self.user = user
+        self.client = client
+        self.rawCrafts = crafts
+        self.rawCrafts_keys = list(self.rawCrafts.keys())
+        
+        self.crafts = {}
+        self.crafts_load()
+        
+        self.crafts_per_page = 9
+        self.actual_page = 0
+        self.selected:str = None # Id
+        self.quantity:int = 1
+        
+        self.UiItemSelect = dui.Select(placeholder="Selec. o que deseja criar...", options=self.get_options_page(self.actual_page), min_values=1, max_values=1)
+        self.UiItemSelect.callback = self.UiItemSelectCallback
+        self.add_item(self.UiItemSelect)
+        
+        self.UiSelectQuantity = dui.Select(placeholder='Quant.', options=[discord.SelectOption(label='0', value='0', default=True)], min_values=1, max_values=1,disabled=True)
+        self.UiSelectQuantity.callback = self.UiItemQuantityCallback
+        self.add_item(self.UiSelectQuantity)
+        
+    async def UiItemSelectCallback(self, interaction:discord.Interaction):
+        self.selected = self.UiItemSelect.values[0]
+        
+        self.remove_item(self.UiSelectQuantity)
+        self.UiSelectQuantity = dui.Select(placeholder='Quant.', options=[discord.SelectOption(label=f'{i}', value=f'{i}', default=(i == self.quantity)) for i in range(1, self.get_max_quantity(self.selected)+1, 1)], min_values=1, max_values=1,disabled=False)
+        self.UiSelectQuantity.callback = self.UiItemQuantityCallback
+        self.add_item(self.UiSelectQuantity)
+        
+        await self.update_embed(interaction)
+
+    async def UiItemQuantityCallback(self, interaction:discord.Interaction):
+        self.quantity = self.UiSelectQuantity.values[0]
+        await interaction.response.defer()
+    
+    def get_max_quantity(self, item_id:int):
+        if item_id in self.rawCrafts.keys():
+            items = self.rawCrafts[item_id]['items']
+            return min(self.user.getItemById(i['id'])['amount'] // i['amount'] for i in items)
+        
+        return 0
+    def crafts_load(self):
+        
+        for key in self.rawCrafts_keys:
+            if RawItems.findById(key) and self.rawCrafts[key]['local'] == self.local: self.crafts[key] = RawItems.findById(key)
+        
+    def get_crafts_page(self, page:int):
+        return list(self.crafts.keys())[page * self.crafts_per_page : (page + 1) * self.crafts_per_page]
+    
+    def get_options_page(self, page:int) -> list[discord.SelectOption]:
+        r = []
+        for l in self.get_crafts_page(page):
+            if RawItems.canCraft(self.user, l):
+                r.append(discord.SelectOption(label=RawItems.findById(l).name, value=l, default=(True if self.selected == l else False)))
+        
+        return (r if len(r) > 0 else [discord.SelectOption(label='Nenhum item disponível', value='none', default=True)])
+    
+    def create_fields(self, e:discord.Embed, page:int):
+        crafts = self.get_crafts_page(page)
+        if len(crafts) == 0:
+            e.add_field(name='Nenhum item encontrado.', value='Nenhum item encontrado.', inline=False)
+        else:
+            for i, item_data in enumerate(crafts):
+                item = RawItems.findById(item_data)
+                required_items = '\n- '.join([f'{RawItems.findById(i["id"]).name} x{i["amount"]}' for i in self.rawCrafts[item_data]['items']])
+                e.add_field(name=f"{i+1}. {GetEmoji(item.id)}{item.name}{'(Faltam recursos.)' if not RawItems.canCraft(self.user, item.id) else ''}\nItems: ```\n- {required_items}```\nVocê tem ``x{self.user.getItemById(item.id)['amount'] if self.user.getItemById(item.id) else 0}``", value=f'Nível: **{item.level}**', inline=True)
+    
+    def embed(self, interaction:discord.Interaction):
+        e = discord.Embed(title='Crafting', color=0x00FF00)
+        self.create_fields(e, self.actual_page)
+        e.set_footer(text=f'Pág: {self.actual_page + 1}/{math.ceil(len(self.crafts)/self.crafts_per_page)}', icon_url=interaction.guild.icon or interaction.user.display_avatar)
+        return e
+    
+    async def update_embed(self, interaction:discord.Interaction):
+        self.remove_item(self.UiItemSelect)
+        self.UiItemSelect = dui.Select(placeholder="Selec. o que deseja criar...", options=self.get_options_page(self.actual_page), min_values=1, max_values=1)
+        self.UiItemSelect.callback = self.UiItemSelectCallback
+        self.add_item(self.UiItemSelect)
+        
+        self.remove_item(self.UiSelectQuantity)
+        self.UiSelectQuantity = dui.Select(placeholder='Quant.', options=[discord.SelectOption(label=f'{i}', value=f'{i}', default=(i == self.quantity)) for i in range(1, (self.get_max_quantity(self.selected)+1 if self.get_max_quantity(self.selected)+1 < 6 else 6), 1)] if not self.get_max_quantity(self.selected) == 0 else [discord.SelectOption(label='0', value='0', default=True)], min_values=1, max_values=1,disabled=False if self.get_max_quantity(self.selected) > 0 else True)
+        self.UiSelectQuantity.callback = self.UiItemQuantityCallback
+        self.add_item(self.UiSelectQuantity)
+        
+        await interaction.response.edit_message(embed=self.embed(interaction), view=self)
+    
+    @dui.button(label='Anterior', style=discord.ButtonStyle.gray)
+    async def back(self, interaction: discord.Interaction, button: dui.button):
+        if interaction.user.id != self.user.id:
+            await interaction.response.send_message('Apenas o dono do inventário pode interagir!', ephemeral=True)
+            return
+        self.actual_page -= 1
+        if self.actual_page < 0:
+            self.actual_page = math.ceil(len(self.crafts)/self.crafts_per_page) - 1
+            
+        await self.update_embed(interaction)
+        
+    @dui.button(label='Próximo', style=discord.ButtonStyle.gray)
+    async def next(self, interaction: discord.Interaction, button: dui.button):
+        if interaction.user.id != self.user.id:
+            await interaction.response.send_message('Apenas o dono do inventário pode interagir!', ephemeral=True)
+            return
+        self.actual_page += 1
+        if self.actual_page >= math.ceil(len(self.crafts)/self.crafts_per_page) - 1:
+            self.actual_page = 0
+            
+        await self.update_embed(interaction)
+    @dui.button(label='Criar', style=discord.ButtonStyle.green)
+    async def create(self, interaction: discord.Interaction, button: dui.button):
+        if interaction.user.id != self.user.id:
+            await interaction.response.send_message('Apenas o dono do inventário pode interagir!', ephemeral=True)
+            return
+        for item in self.rawCrafts[self.selected]['items']:
+            self.user.remove_item(item['id'], int(item['amount'] * self.quantity))
+        self.user.add_item(self.selected, int(self.quantity))
+        
+        self.client.db.update_value('users', 'data_user', self.user.id, self.user.save())
+        self.client.db.save()
+        
+        await interaction.response.send_message(f'Você criou ``{self.quantity}x`` {RawItems.findById(self.selected).name}', ephemeral=True)
+        await self.update_embed(interaction)
+        
+    
+    @dui.button(label='Fechar', style=discord.ButtonStyle.red)
+    async def close(self, interaction: discord.Interaction, button: dui.button):
+        if interaction.user.id != self.user.id:
+            await interaction.response.send_message('Apenas o dono do inventário pode interagir!', ephemeral=True)
+            return
+        self.clear_items()
+        self.stop()
+        await interaction.response.edit_message(view=self)

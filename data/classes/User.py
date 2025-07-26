@@ -132,9 +132,12 @@ class User:
     def findItem(self, item_id:int) -> dict:
         if item_id in self.items.keys():
             dataIsFrom:dict = self.items
-        else:
+            return dataIsFrom[item_id]
+        elif item_id in self.tools.keys():
             dataIsFrom:dict = self.tools
-        return dataIsFrom[item_id]
+            return dataIsFrom[item_id]
+        else:
+            return None
     
     def getItems(self, category:ItemsTypes=None, subtype:str=None, exclude:list[str,]=[]) -> list:
         c = []
@@ -229,3 +232,9 @@ class User:
             if key in self.__dict__.keys():
                 d[(key if not key.startswith('_') else key[1:])] = self.__dict__[key]
         return pickle.dumps(d)
+
+class UserShop:
+    def __init__(self, user_id:int) -> None:
+        self.id = user_id
+        self.items:list[dict,] = []
+        

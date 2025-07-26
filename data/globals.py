@@ -2,7 +2,9 @@ from typing import Literal
 import math, json
 
 ItemsTypes = Literal['weapon', 'fishing_rod', 'pickaxe', 'axe', 'woods', 'material','fish']
-BotEmojis = json.load(open('data/emojis.json', 'rb'))
+BotData = json.load(open('data/data.json', 'rb'))
+BotEmojis = BotData['emojis']
+BotCrafts = BotData['crafts']
 
 def GetEmoji(id:str) -> str:
     if f'ns_{id}' in BotEmojis.keys(): return BotEmojis[f'ns_{id}']
@@ -66,7 +68,13 @@ class ItemObj:
         Item('axe_gold', 'Machado(Ouro)', 200, 10, 'axe'),
         Item('axe_diamond', 'Machado(Diamante)', 500, 15, 'axe'),
         Item('axe_obsidian', 'Machado(Obsidiana)', 1, 20, 'axe', True),
-        Item('wood_oak', 'Madeira de carvalho', 1, 1, 'woods'), # Woods
+        # Weapons
+        Item('weapon_club', 'Porrete', 3, 1, 'weapon', subtype='club'),
+        Item('weapon_copper_knife', 'Faca de Cobre', 5, 1, 'weapon', subtype='knife'),
+        Item('weapon_silver_knife', 'Faca de Prata', 7, 1, 'weapon', subtype='knife'),
+        Item('weapon_club_spiked', 'Porrete com Espinhos', 15, 10, 'weapon', subtype='club'),
+        # Woods
+        Item('wood_oak', 'Madeira de carvalho', 1, 1, 'woods'),
         # Fishes
         Item('fish_small', 'Peixe Pequeno', 1, 1, 'fish'),
         Item('fish_jade', 'Peixe Chifre-de-Jade', 1, 1, 'fish'),
@@ -83,39 +91,46 @@ class ItemObj:
         Item('plant_grass','Grama', 0, 1, 'material', True, 'plant', True),
         Item('plant_herbs','Ervas', 0, 1, 'material', True, 'plant', True),
         Item('bone','Osso', 0, 1, 'material', True, 'bone', True),
+        Item('iron_spikes','Espinhos de Ferro', 0, 10, 'material', True),
         # Ores
-        Item('ore_tin','Minério de Estanho', 0, 1, 'material', True, 'ore', True),
-        Item('ore_copper','Minério de Cobre', 0, 1, 'material', True, 'ore', True),
-        Item('ore_silver','Minério de Prata', 0, 1, 'material', True, 'ore', True),
-        Item('ore_iron','Minério de Ferro', 0, 10, 'material', True, 'ore', True),
-        Item('ore_brass','Minério de Latão', 0, 10, 'material', True, 'ore', True),
-        Item('ore_gold','Minério de Ouro', 0, 10, 'material', True, 'ore', True),
-        Item('ore_diamond','Minério de Diamante', 0, 15, 'material', True, 'ore', True),
-        Item('ore_obsidian','Minério de Obsidiana', 0, 20, 'material', True, 'ore', True),
-        Item('ore_manasteel','Minério de Manasteel', 0, 25, 'material', True, 'ore', True),
+        Item('ore_tin','Minério de Estanho', 0, 1, 'material', True, 'ore', False),
+        Item('ore_copper','Minério de Cobre', 0, 1, 'material', True, 'ore', False),
+        Item('ore_silver','Minério de Prata', 0, 1, 'material', True, 'ore', False),
+        Item('ore_iron','Minério de Ferro', 0, 10, 'material', True, 'ore', False),
+        Item('ore_brass','Minério de Latão', 0, 10, 'material', True, 'ore', False),
+        Item('ore_gold','Minério de Ouro', 0, 10, 'material', True, 'ore', False),
+        Item('ore_diamond','Minério de Diamante', 0, 15, 'material', True, 'ore', False),
+        Item('ore_obsidian','Minério de Obsidiana', 0, 20, 'material', True, 'ore', False),
+        Item('ore_manasteel','Minério de Manasteel', 0, 25, 'material', True, 'ore', False),
         # Bars
-        Item('bar_tin','Barra de Estanho', 0, 1, 'material', True, 'bar', True),
-        Item('bar_copper','Barra de Cobre', 0, 1, 'material', True, 'bar', True),
-        Item('bar_silver','Barra de Prata', 0, 1, 'material', True, 'bar', True),
-        Item('bar_iron','Barra de Ferro', 0, 10, 'material', True, 'bar', True),
-        Item('bar_brass','Barra de Latão', 0, 10, 'material', True, 'bar', True),
-        Item('bar_gold','Barra de Ouro', 0, 10, 'material', True, 'bar', True),
-        Item('bar_diamond','Barra de Diamante', 0, 15, 'material', True, 'bar', True),
-        Item('bar_obsidian','Barra de Obsidiana', 0, 20, 'material', True, 'bar', True),
-        Item('bar_manasteel','Barra de Manasteel', 0, 25, 'material', True, 'bar', True),
+        Item('bar_tin','Barra de Estanho', 0, 1, 'material', True, 'bar', False),
+        Item('bar_copper','Barra de Cobre', 0, 1, 'material', True, 'bar', False),
+        Item('bar_silver','Barra de Prata', 0, 1, 'material', True, 'bar', False),
+        Item('bar_iron','Barra de Ferro', 0, 10, 'material', True, 'bar', False),
+        Item('bar_brass','Barra de Latão', 0, 10, 'material', True, 'bar', False),
+        Item('bar_gold','Barra de Ouro', 0, 10, 'material', True, 'bar', False),
+        Item('bar_diamond','Barra de Diamante', 0, 15, 'material', True, 'bar', False),
+        Item(id='bar_obsidian',name='Barra de Obsidiana', usages=0, level=20, item_type='material', unbreakable=True, subtype='bar', findable=False),
+        Item('bar_manasteel','Barra de Manasteel', 0, 25, 'material', True, 'bar', False),
     ]
     
-    crafting = {
-        'ore_tin': 'bar_tin',
-        'ore_copper': 'bar_copper',
-        'ore_silver': 'bar_silver',
-        'ore_iron': 'bar_iron',
-        'ore_brass': 'bar_brass',
-        'ore_gold': 'bar_gold',
-        'ore_diamond': 'bar_diamond',
-        'ore_obsidian': 'bar_obsidian',
-        'ore_manasteel': 'bar_manasteel',
-    }
+    def getOreBar(self, item_id:str) -> str:
+        for key, item in BotCrafts.items():
+            if len(item['items']) <= 1:
+                if item['items'][0]['id'] == item_id:
+                    return key
+    
+    def canCraft(self, user, item_id:str) -> bool:
+        if item_id in BotCrafts.keys():
+            can_craft:bool = True
+            for item in BotCrafts[item_id]['items']:
+                require_item_id, item_amount = item['id'], item['amount']
+                item_user = user.findItem(require_item_id)
+                if item_user is None or item_user['amount'] < item_amount: can_craft = False
+            if user.level < BotCrafts[item_id]['level']: can_craft = False
+            return can_craft
+        else: return False
+        
     def getAll(self, category:ItemsTypes=None) -> list[Item,]:
         if category is not None: return [item for item in self.values if item.item_type == category]
         return self.values
@@ -131,10 +146,21 @@ class ItemObj:
         if level_limit is not None: return [item for item in self.values if item.item_type == category and item.level <= level_limit]
         else: return [item for item in self.values if item.item_type == category]
     
-    def getSubtype(self, subtype:str, level_limit:int=None, exclude:list[str,]=None) -> list[Item]:
-        if exclude is not None: return [item for item in self.values if item.subtype == str(subtype).lower() and item.name not in exclude]
-        elif level_limit is not None: return [item for item in self.values if item.subtype == str(subtype).lower() and item.level <= level_limit]
-        else: return [item for item in self.values if item.subtype == str(subtype).lower()]
+    def getSubtype(self, subtype:str, level_limit:int=None, exclude:list[str,]=[], level_range:tuple[int,int]=None) -> list[Item]:
+        x = []
+        for item in self.values:
+            if str(item.subtype).lower() == str(subtype).lower():
+                if level_range is not None:
+                    if item.level >= level_range[0] and item.level <= level_range[1]:
+                        if not (item.id in exclude): x.append(item)
+                elif level_limit is not None:
+                    if item.level <= level_limit:
+                        if not (item.id in exclude): x.append(item)
+                else:
+                    if item.id in exclude: pass
+                    else: x.append(item)
+                    
+        return x
     
     def getFindable(self) -> list[Item]:
         return [item for item in self.values if item.findable]
@@ -157,3 +183,4 @@ class ItemObj:
         return None
     
 RawItems = ItemObj()
+AllItemsIds = [str(i.id) for i in RawItems.values]

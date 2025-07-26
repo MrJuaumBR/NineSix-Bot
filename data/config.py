@@ -75,6 +75,10 @@ class Bot(discord.Client):
             self.db.create_table('servers', [('id',int), ('data_server',bytes)])
         if not ('users' in self.db.tables.keys()):
             self.db.create_table('users', [('id', int), ('data_user', bytes)])
+        if not ('users-shop' in self.db.tables.keys()):
+            self.db.create_table('users-shop', [('id', int), ('data_shop', bytes)])
+        if not ('parties' in self.db.tables.keys()):
+            self.db.create_table('parties', [('id', int), ('users_ids', list)])
         self.db.save()
 
     def getUser(self,user_id:int) -> User:

@@ -15,10 +15,11 @@
 - [ ] Party/Equipe;
 - [ ] Events/Eventos;
 - [ ] Reputation/Reputação;
-- [ ] Craft/Criação;
+- [x] Craft/Criação;
 - [ ] Negative Effect Status/Status de efeito negativo;
 - [ ] Monster Evolution/Evolução dos Monstros;
 - [ ] Monsters/Monstros;
 - [ ] Raids;
 - [ ] Bosses Mundiais;
 - [x] Icons for items/Icones para os itens;
+- [ ] Players Shop/Loja dos jogadores;

@@ -176,12 +176,12 @@ async def _smelt(interaction: discord.Interaction, auto: bool = False):
             await interaction.response.send_message('Vocês precisa ter pelo menos 3x minérios brutos para forjar.', ephemeral=True)
             return
         
-        v = SmeltView(u, client, ores)
+        v = SmeltView(u, client, ores, BotCrafts)
         await interaction.response.send_message(embed=v.embed(interaction), view=v)
         return
     
 @t.command(name='minerar', description='Minerar',guilds=[])
-async def _mine(interaction: discord.Interaction):
+async def _mine(interaction: discord.Interaction,min_level: int = 0, max_level: int = 0):
     # Get the user info
     u = getUser(client, interaction.user.id)
     
@@ -195,7 +195,19 @@ async def _mine(interaction: discord.Interaction):
     if tool['usages'] <= 0:
         u.deleteTool('pickaxe')
     
-    mineral = RawItems.getSubtype('ore',level_limit=u._level, exclude=['ore_brass'])
+    if min_level < 0:
+        min_level = 0
+    if max_level > u.level:
+        max_level = u._level
+    if min_level > max_level:
+        await interaction.response.send_message('O nível mínimo deve ser menor que o máximo.', ephemeral=True)
+        return
+    
+    if min_level == 0 and max_level == 0:
+        max_level = u._level
+        min_level = 0
+        
+    mineral = RawItems.getSubtype('ore', exclude=['ore_brass'], level_range=(min_level, max_level))
     mineral:Item = random.choice(mineral)
     e = discord.Embed(
         title='Minerando',
@@ -214,7 +226,13 @@ async def _mine(interaction: discord.Interaction):
     client.db.save()
     
     await interaction.response.send_message(embed=e)
+
+@t.command(name='craft', description='Transforme seus itens!',guilds=[])
+async def _craft(interaction: discord.Interaction):
+    u = getUser(client, interaction.user.id)
+    v = CraftView(u, client, BotCrafts)
     
+    await interaction.response.send_message(embed=v.embed(interaction), view=v)
     
 @t.command(name='buscar',description='Busca materiais na região',guilds=[])
 @discord.app_commands.checks.cooldown(1, 10)
@@ -546,6 +564,27 @@ async def _set_exp(interaction: discord.Interaction, user_id: str, exp: int):
                 await interaction.response.send_message('Exp not provided')
         else:
             await interaction.response.send_message('User id not provided')
+            
+@t.command(name='db-debug-give-item', description='Give item to user | Only admin can use',guilds=[])
+async def _give_item(interaction:discord.Interaction, item_id:str, user_id: str=None, amount:int=1):
+    if interaction.user.id in owner_ids:
+        if user_id in ['0','me','i',None]:
+            user_id = interaction.user.id
+        if user_id != None:
+            if amount != None:
+                u = getUser(client, int(user_id))
+                if RawItems.findById(item_id):
+                    u.add_item(item_id, amount)
+                    pdb.database.update_value('users', 'data_user', int(user_id), u.save())
+                    pdb.database.save()
+                    await interaction.response.send_message('User ' + item_id + ' added ' + str(amount), ephemeral=True)
+                else:
+                    await interaction.response.send_message('Item not found')
+            else:
+                await interaction.response.send_message('Amount not provided')
+        else:
+            await interaction.response.send_message('User id not provided')
+            
 @t.command(name='db-debug-remove-user', description='Remove user from database | Only admin can use',guilds=[])
 async def _remove_user(interaction: discord.Interaction, user_id: str):
     db = pdb.database

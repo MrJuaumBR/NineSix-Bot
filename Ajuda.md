@@ -7,12 +7,23 @@
 - Após comprar uma ferramenta/arma, você precisa equipa-la usando o comando `/equipamentos` e então ir até a página do respectivo equipamento.
 - Se estiver curioso em relação aos itens, você pode olhar o `/catalogo` que irá te dar uma visão de todos os itens do bot.
 
+# Servidores
+- A cada mensagem que você envia você ganha uma pequena quantidade de **experiência** e de **dinheiro**
+- você pode usar o comando ``/level-up-channel`` para definir aonde a mensagem de subida de nível será enviada.
+- Os servidores podem ter taxas definidas pelo dono dele(Inclui transações e ...)<span id='servers-#1'>*¹</span>
+
+
+<small>
+<a href="#servers-#1">*¹</a>: Pode(e deve) sofrer alterações futuramente
+</small>
+
 # Buscar
 - A busca é uma ação útil para encontrar materiais básicos.
 - A quantidade que vem dos itens é aleatório(1-3), bem como o item que vem.
 - Tem um cooldown de 10 segundos.
 - Os itens podem vir com qualquer nível.
 <table>
+    <caption>Itens que podem ser encontrados</caption>
     <tr>
         <th>
             Item
@@ -88,7 +99,7 @@
             Picareta de Madeira(pickaxe_wood)
         </td>
         <td>
-            1
+            Nvl. 1
         </td>
         <td>
             3
@@ -102,7 +113,7 @@
             Picareta de Cobre(pickaxe_copper)
         </td>
         <td>
-            1
+            Nvl. 1
         </td>
         <td>
             15
@@ -116,7 +127,7 @@
             Picareta de Prata(pickaxe_silver)
         </td>
         <td>
-            1
+           Nvl. 5
         </td>
         <td>
             45
@@ -130,7 +141,7 @@
             Picareta de Ouro(pickaxe_gold)
         </td>
         <td>
-            1
+            Nvl. 10
         </td>
         <td>
             200
@@ -144,7 +155,7 @@
             Picareta de Diamante(pickaxe_diamond)
         </td>
         <td>
-            1
+            Nvl. 15
         </td>
         <td>
             500
@@ -158,7 +169,7 @@
             Picareta de Obsidian(pickaxe_obsidian)
         </td>
         <td>
-            1
+            Nvl. 20
         </td>
         <td>
             <b>Inquebrável<b>
@@ -171,14 +182,150 @@
 
 # Crafts
 - Misturas devem ser craftadas e então forjadas(ex: Latão)
-  
-...
+<table>
+    <caption>Itens <i>Craftáveis</i></caption>
+    <tr>
+        <th>
+            Item
+        </th>
+        <th>
+            Nível
+        </th>
+        <th>
+            Durabilidade
+        </th>
+        <th>
+            Recursos
+        </th>
+    </tr>
+    <tr>
+        <td>
+            Porrete(weapon_club)
+        </td>
+        <td>
+            Nvl. 1
+        </td>
+        <td>
+            3
+        </td>
+        <td>
+            <ul>
+                <li>
+                    3x Graveto(wood_stick)
+                </li>
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Faca de Cobre(weapon_copper_knife)
+        </td>
+        <td>
+            Nvl. 1
+        </td>
+        <td>
+            5
+        </td>
+        <td>
+            <ul>
+                <li>
+                    1x Barra de Cobre(bar_copper)
+                </li>
+                <li>
+                    1x Graveto(wood_stick)
+                </li>
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Faca de Prata(weapon_silver_knife)
+        </td>
+        <td>
+            Nvl. 1
+        </td>
+        <td>
+            7
+        </td>
+        <td>
+            <ul>
+                <li>
+                    1x Barra de Prata(bar_silver)
+                </li>
+                <li>
+                    1x Graveto(wood_stick)
+                </li>
+            </ul>
+        </td>
+    </tr>
+        <tr>
+        <td>
+            Espinhos de Ferro(iron_spikes)
+        </td>
+        <td>
+            Nvl. 10
+        </td>
+        <td>
+            *<span title="Inquebrável">Material</span>
+        </td>
+        <td>
+            <ul>
+                <li>
+                    1x Barra de Ferro(bar_iron)
+                </li>
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Minério de Latão(ore_brass)
+        </td>
+        <td>
+            Nvl. 10
+        </td>
+        <td>
+            *<span title="Inquebrável">Material</span>
+        </td>
+        <td>
+            <ul>
+                <li>
+                    2x Minério de Cobre(ore_copper)
+                </li>
+                <li>
+                    1x Minério de Ferro(ore_iron)
+                </li>
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Porrete com Espinhos(weapon_club_spiked)
+        </td>
+        <td>
+            Nvl. 10
+        </td>
+        <td>
+            15
+        </td>
+        <td>
+            <ul>
+                <li>
+                    1x Porrete(weapon_club)
+                </li>
+                <li>
+                    1x Espinhos de Ferro(iron_spikes)
+                </li>
+            </ul>
+        </td>
+    </tr>
+</table>
 
 # Forja
 - Para forjar qualquer minério é necessário ter **3 Minérios Brutos**
 - Use o comando `/forjar` para forjar, o parâmetro _auto_ é usado para forjar todos os minérios possíveis automaticamente.
 - Cada minério tem seu próprio nível para ser trabalhado, use o `/catalogo` para ver os níveis.
 <table>
+    <caption>Itens que podem ser forjados</caption>
     <tr>
         <th>
             Item
