@@ -1,4 +1,5 @@
 # TODO
+## Add
 - [ ] Quest System/Sistema de missões;
 - [ ] City System/Sistema de cidades;
 - [ ] Battle System/Sistema de batalhas;
@@ -23,3 +24,10 @@
 - [ ] Bosses Mundiais;
 - [x] Icons for items/Icones para os itens;
 - [ ] Players Shop/Loja dos jogadores;
+  
+
+## Changes/Fixes
+- [x] Optimize UiView Embed creators;
+- [x] Fix Inventory Ghost pages;
+- [x] Amount that crafts result;
+- [x] "dar-item" command fix(only getting some items instead of all of them);

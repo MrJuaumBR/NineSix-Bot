@@ -7,11 +7,13 @@
 - Após comprar uma ferramenta/arma, você precisa equipa-la usando o comando `/equipamentos` e então ir até a página do respectivo equipamento.
 - Se estiver curioso em relação aos itens, você pode olhar o `/catalogo` que irá te dar uma visão de todos os itens do bot.
 
+![Discord Shield](https://discord.com/api/guilds/1014636634341392475/widget.png?style=shield)
+
 # Servidores
 - A cada mensagem que você envia você ganha uma pequena quantidade de **experiência** e de **dinheiro**
 - você pode usar o comando ``/level-up-channel`` para definir aonde a mensagem de subida de nível será enviada.
 - Os servidores podem ter taxas definidas pelo dono dele(Inclui transações e ...)<span id='servers-#1'>*¹</span>
-
+- Certos comandos só podem ser executados por administradores, tenha certeza de por essa permissão somente em quem **confie**.
 
 <small>
 <a href="#servers-#1">*¹</a>: Pode(e deve) sofrer alterações futuramente
@@ -22,6 +24,7 @@
 - A quantidade que vem dos itens é aleatório(1-3), bem como o item que vem.
 - Tem um cooldown de 10 segundos.
 - Os itens podem vir com qualquer nível.
+- O comando é ``/buscar ``
 <table>
     <caption>Itens que podem ser encontrados</caption>
     <tr>
@@ -78,6 +81,7 @@
 - Para minerar é necessário uma [picareta equipada](#geral)
 - Você só pode minerar minérios que forem do seu nível ou inferiores.
 - Ao minerar você gasta durabilidade da picareta.
+- Para minerar use o comando ``/minerar`` e você pode por uma medida de nível(min, max).
 <table>
     <caption>Picaretas</captions>
     <tr>
@@ -182,6 +186,7 @@
 
 # Crafts
 - Misturas devem ser craftadas e então forjadas(ex: Latão)
+- Para abrir o menu de craft use ``/craft``
 <table>
     <caption>Itens <i>Craftáveis</i></caption>
     <tr>
@@ -200,7 +205,25 @@
     </tr>
     <tr>
         <td>
-            Porrete(weapon_club)
+            3x Graveto(wood_stick)
+        </td>
+        <td>
+            Nvl. 1
+        </td>
+        <td>
+            *<span title="Inquebrável">Material</span>
+        </td>
+        <td>
+            <ul>
+                <li>
+                    1x Madeira de Madeira(wood_oak)
+                </li>
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            1x Porrete(weapon_club)
         </td>
         <td>
             Nvl. 1
@@ -218,7 +241,7 @@
     </tr>
     <tr>
         <td>
-            Faca de Cobre(weapon_copper_knife)
+            1x Faca de Cobre(weapon_copper_knife)
         </td>
         <td>
             Nvl. 1
@@ -239,7 +262,7 @@
     </tr>
     <tr>
         <td>
-            Faca de Prata(weapon_silver_knife)
+            1x Faca de Prata(weapon_silver_knife)
         </td>
         <td>
             Nvl. 1
@@ -260,7 +283,7 @@
     </tr>
         <tr>
         <td>
-            Espinhos de Ferro(iron_spikes)
+            3x Espinhos de Ferro(iron_spikes)
         </td>
         <td>
             Nvl. 10
@@ -278,7 +301,7 @@
     </tr>
     <tr>
         <td>
-            Minério de Latão(ore_brass)
+            2x Minério de Latão(ore_brass)
         </td>
         <td>
             Nvl. 10
@@ -299,7 +322,7 @@
     </tr>
     <tr>
         <td>
-            Porrete com Espinhos(weapon_club_spiked)
+            1x Porrete com Espinhos(weapon_club_spiked)
         </td>
         <td>
             Nvl. 10

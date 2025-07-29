@@ -1,7 +1,7 @@
 from typing import Literal
 import math, json
 
-ItemsTypes = Literal['weapon', 'fishing_rod', 'pickaxe', 'axe', 'woods', 'material','fish']
+ItemsTypes = Literal['weapon', 'fishing_rod', 'pickaxe', 'axe', 'material']
 BotData = json.load(open('data/data.json', 'rb'))
 BotEmojis = BotData['emojis']
 BotCrafts = BotData['crafts']
@@ -74,17 +74,17 @@ class ItemObj:
         Item('weapon_silver_knife', 'Faca de Prata', 7, 1, 'weapon', subtype='knife'),
         Item('weapon_club_spiked', 'Porrete com Espinhos', 15, 10, 'weapon', subtype='club'),
         # Woods
-        Item('wood_oak', 'Madeira de carvalho', 1, 1, 'woods'),
+        Item('wood_oak', 'Madeira de carvalho', 1, 1, item_type='material', subtype='wood'),
         # Fishes
-        Item('fish_small', 'Peixe Pequeno', 1, 1, 'fish'),
-        Item('fish_jade', 'Peixe Chifre-de-Jade', 1, 1, 'fish'),
-        Item('fish_marfim', 'Peixe Chifre-de-Marfim', 1, 1, 'fish'),
-        Item('fish_coral', 'Peixe Chifre-de-Coral', 1, 1, 'fish'),
-        Item('fish_tiger', 'Enguias de tigre', 1, 1, 'fish'),
-        Item('fish_platinum', 'Peixe prata', 1, 1, 'fish'),
-        Item('fish_blue', 'Peixe azul', 1, 1, 'fish'),
-        Item('fish_red', 'Peixe vermelho', 1, 1, 'fish'),
-        Item('fish_silver', 'Peixe Prata', 1, 1, 'fish'),
+        Item('fish_small', 'Peixe Pequeno', 1, 1, 'material', subtype='fish'),
+        Item('fish_jade', 'Peixe Chifre-de-Jade', 1, 1, 'material', subtype='fish'),
+        Item('fish_marfim', 'Peixe Chifre-de-Marfim', 1, 1, 'material', subtype='fish'),
+        Item('fish_coral', 'Peixe Chifre-de-Coral', 1, 1, 'material', subtype='fish'),
+        Item('fish_tiger', 'Enguias de tigre', 1, 1, 'material', subtype='fish'),
+        Item('fish_platinum', 'Peixe prata', 1, 1, 'material', subtype='fish'),
+        Item('fish_blue', 'Peixe azul', 1, 1, 'material', subtype='fish'),
+        Item('fish_red', 'Peixe vermelho', 1, 1, 'material', subtype='fish'),
+        Item('fish_silver', 'Peixe Prata', 1, 1, 'material', subtype='fish'),
         # Materials
         Item('wood_stick','Graveto', 0, 1, 'material', True, 'stick', True),
         Item('rock_stone','Pedra', 0, 1, 'material', True, 'rock', True),

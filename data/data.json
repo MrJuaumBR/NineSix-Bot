@@ -32,27 +32,38 @@
         "ns_bone":"<:ns_bone:1398290483041534104>"
     },
     "crafts": {
+        "wood_stick":{
+            "items":[
+                {"id":"wood_oak", "amount":1}
+            ],
+            "level":1,
+            "local":"craft",
+            "result":3
+        },
         "ore_brass":{
             "items":[
                 {"id":"ore_copper", "amount":2},
                 {"id":"ore_iron", "amount":1}
             ],
             "level":10,
-            "local":"craft"
+            "local":"craft",
+            "result":2
         },
         "iron_spikes":{
             "items":[
                 {"id":"bar_iron", "amount":1}
             ],
             "level":10,
-            "local":"craft"
+            "local":"craft",
+            "result":3
         },
         "weapon_club":{
             "items":[
                 {"id":"wood_stick", "amount":3}
             ],
             "level":1,
-            "local":"craft"
+            "local":"craft",
+            "result":1
         },
         "weapon_silver_knife":{
             "items":[
@@ -60,7 +71,8 @@
                 {"id":"bar_silver", "amount":1}
             ],
             "level":1,
-            "local":"craft"
+            "local":"craft",
+            "result":1
         },
         "weapon_copper_knife":{
             "items":[
@@ -68,7 +80,8 @@
                 {"id":"bar_copper", "amount":1}
             ],
             "level":1,
-            "local":"craft"
+            "local":"craft",
+            "result":1
         },
         "weapon_club_spiked":{
             "items":[
@@ -76,63 +89,72 @@
                 {"id":"iron_spikes", "amount":1}
             ],
             "level":10,
-            "local":"craft"
+            "local":"craft",
+            "result":1
         },
         "bar_copper":{
             "items":[
                 {"id":"ore_copper", "amount":3}
             ],
             "level":1,
-            "local":"smelt"
+            "local":"smelt",
+            "result":1
         },
         "bar_silver":{
             "items":[
                 {"id":"ore_silver", "amount":3}
             ],
             "level":1,
-            "local":"smelt"
+            "local":"smelt",
+            "result":1
         },
         "bar_brass":{
             "items":[
                 {"id":"ore_brass", "amount":3}
             ],
             "level":10,
-            "local":"smelt"
+            "local":"smelt",
+            "result":1
         },
         "bar_iron":{
             "items":[
                 {"id":"ore_iron", "amount":3}
             ],
             "level":10,
-            "local":"smelt"
+            "local":"smelt",
+            "result":1
         },
         "bar_gold":{
             "items":[
                 {"id":"ore_gold", "amount":3}
             ],
             "level":10,
-            "local":"smelt"
+            "local":"smelt",
+            "result":1
         },
         "bar_diamond":{
             "items":[
                 {"id":"ore_diamond", "amount":3}
             ],
             "level":15,
-            "local":"smelt"
+            "local":"smelt",
+            "result":1
         },
         "bar_obsidian":{
             "items":[
                 {"id":"ore_obsidian", "amount":3}
             ],
             "level":20,
-            "local":"smelt"
+            "local":"smelt",
+            "result":1
         },
         "bar_manasteel":{
             "items":[
                 {"id":"ore_manasteel", "amount":3}
             ],
             "level":25,
-            "local":"smelt"
+            "local":"smelt",
+            "result":1
         }
     }
 }

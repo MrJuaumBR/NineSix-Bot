@@ -30,7 +30,46 @@ class GiveItemView(dui.View):
         
         self.add_item(self.UiItemSelected)
         self.add_item(self.UiItemQuantity)
+    
+    def total_pages(self) -> int:
+        total_items = self.user.getTotalItems()
+        total_pages = math.ceil(total_items/self.items_per_page)
+        if total_items % self.items_per_page > 0 and total_items > self.items_per_page:
+            if not len(self.get_items_page(total_pages+1)) <= 0:
+                total_pages += 1
+            
+        return int(total_pages)
+    
+    def get_items_indexes(self, page:int) -> tuple[int, int]:
+        start_on:int = int(page * self.items_per_page)
+        end_on:int = int((page + 1) * (self.items_per_page if self.user.getTotalItems() % self.items_per_page > 0 else self.items_per_page - int(self.user.getTotalItems() % self.items_per_page)))
+        return start_on, end_on
+    
+    def get_items_info(self) -> list[tuple[Item, int]]:
+        x = []
+        for item in self.user.getItems():
+            i = RawItems.findById(item['item_data']['id'])
+            x.append((i, self.user.findItem(i.id)['amount']))
+        return x
+    
+    def get_items_page(self, page:int) -> list[tuple[Item, int]]:
+        x = self.get_items_info()
+        start_on, end_on = self.get_items_indexes(page)
+        return x[start_on : end_on]
+    
+    def embed(self, interaction:discord.Interaction):
+        e = discord.Embed(
+            title='Dar Item',
+            description=f'Itens do seu inventário(``{self.user.getTotalItems()}``):',
+            color=0x00FF00
+        )
         
+        e.set_footer(text=f'Pág: {self.actual_page + 1}/{self.total_pages()}', icon_url=interaction.guild.icon or interaction.user.display_avatar)
+        
+        self.create_fields(e, self.actual_page)
+        
+        return e
+    
     async def UiItemSelectedCallback(self, interaction: discord.Interaction):
         if interaction.user.id != self.user.id:
             await interaction.response.send_message('Apenas o dono do inventário pode interagir!', ephemeral=True)
@@ -49,7 +88,7 @@ class GiveItemView(dui.View):
         items = self.get_items_page(page)
         
         for i, item in enumerate(items):
-            tool:Item = self.user.getToolById(item[0].id)
+            tool:Item = self.user.getItemById(item[0].id)
             embed.add_field(name=f"{i+1}. {item[0].name}", value=f"x``{item[1]}``\n{(f'Usos ``{self.client.humanize_number(tool["usages"])}`` restantes.' if not tool['item_data']['unbreakable'] else 'Este item é inquebrável!')}", inline=False)
     
     async def update_embed(self, interaction: discord.Interaction, react_type:Literal['next', 'back'] = 'next'): 
@@ -62,29 +101,17 @@ class GiveItemView(dui.View):
         self.UiItemSelected.callback = self.UiItemSelectedCallback
         self.add_item(self.UiItemSelected)
         
-        e = discord.Embed(
-            title='Itens disponíveis no seu inventário',
-            color=0x00FF00
-        )
-        
-        e.set_footer(text=f'Pág: {self.actual_page + 1}/{math.ceil(len(self.user.tools.keys())/self.items_per_page) + 1}', icon_url=interaction.guild.icon or interaction.user.display_avatar)
-        
-        self.create_fields(e, self.actual_page)
+        e = self.embed(interaction)
         
         await interaction.response.edit_message(embed=e, view=self)
-        
-    def get_items_page(self, page:int) -> list[tuple[Item, int]]:
-        x = []
-        for item_id in self.user.tools.keys():
-            l:Item = self.items.findById(item_id)
-            x.append((l, self.user.tools[item_id]['amount']))
-            
-        return x[page * self.items_per_page : (page + 1) * self.items_per_page]
     
     def get_options(self):
         options = []
-        for i, item in enumerate(self.get_items_page(self.actual_page)):
-            options.append(discord.SelectOption(label=item[0].name, value=str(i)))
+        if len(self.get_items_page(self.actual_page)) == 0:
+            options.append(discord.SelectOption(label='Nenhum item', value='0', default=True))
+        else:
+            for i, item in enumerate(self.get_items_page(self.actual_page)):
+                options.append(discord.SelectOption(label=item[0].name, value=str(i)))
         return options
     
     @dui.button(label='Anterior', style=discord.ButtonStyle.green)
@@ -94,7 +121,7 @@ class GiveItemView(dui.View):
             return
         self.actual_page -= 1
         if self.actual_page < 0:
-            self.actual_page = (len(self.user.tools.keys())-1)//self.items_per_page
+            self.actual_page = self.total_pages()-1
             
         await self.update_embed(interaction)
         
@@ -104,7 +131,7 @@ class GiveItemView(dui.View):
             await interaction.response.send_message('Apenas o dono do inventário pode interagir!', ephemeral=True)
             return
         self.actual_page += 1
-        if self.actual_page >= (len(self.user.tools.keys())+1)//self.items_per_page:
+        if self.actual_page >= self.total_pages():
             self.actual_page = 0
             
         await self.update_embed(interaction)
@@ -123,14 +150,10 @@ class GiveItemView(dui.View):
         await interaction.response.edit_message(view=None)
         
         # Remove item from user
-        self.user.tools[[key for key in self.user.tools.keys()][self.selected]]['amount'] -= self.quantity
-        if self.user.tools[[key for key in self.user.tools.keys()][self.selected]]['amount'] <= 0:
-            del self.user.tools[[key for key in self.user.tools.keys()][self.selected]]
+        self.user.remove_item([key for key in self.user.tools.keys()][self.selected], self.quantity)
         
         # Add item to user2
-        if self.user2.tools.get([key for key in self.user.tools.keys()][self.selected]) is None:
-            self.user2.tools[[ key for key in self.user.tools.keys()][self.selected]] = {'amount': 0}
-        self.user2.tools[[ key for key in self.user.tools.keys()][self.selected]]['amount'] += self.quantity
+        self.user2.add_item([key for key in self.user.tools.keys()][self.selected], self.quantity)
         
         # Update db
         self.client.db.update_value('users', 'data_user', self.user.id, self.user.save())
@@ -161,7 +184,12 @@ class InventoryView(dui.View):
         self.filter_category = filter_category
         self.user_items_ids = [key for key in self.user.tools.keys()] + [key for key in self.user.items.keys()]
         # Funcionando até aqui
-        
+    def total_pages(self) -> int:
+        total_items = self.user.getTotalItems(self.filter_category)
+        total_pages = math.ceil(total_items/self.items_per_page)
+        if total_items % self.items_per_page > 0 and total_items > self.items_per_page:
+            total_pages += 1
+        return int(total_pages)
     def get_items_page(self, page:int) -> list:
         x = []
         for item_id in self.user_items_ids:
@@ -172,16 +200,20 @@ class InventoryView(dui.View):
                 l:Item = self.items.findById(item_id)
                 if l.item_type == self.filter_category:
                     x.append((l, self.user.findItem(item_id)['amount']))
-        
+        total_pages = math.ceil(len(x) / self.items_per_page)
+        page = min(page, total_pages - 1)  # Ensure page number is within bounds
         return x[page * self.items_per_page : (page + 1) * self.items_per_page]
     
     def create_fields(self, embed:discord.Embed, page:int):
         items = self.get_items_page(page)
         
+        if len(items) == 0:
+            embed.add_field(name='Inventário vazio', value='Nenhum item encontrado.', inline=False)
+            return
         for i, item in enumerate(items):
             uItem:Item = self.user.getItemById(item[0].id)
             d = ''
-            if uItem['item_data']['item_type'] in ['material', 'fish']:
+            if uItem['item_data']['item_type'] in ['material']:
                 d = '\n``Este item é um material.``'
             elif uItem['item_data']['unbreakable']:
                 d = '\n``Este item é inquebrável!``'
@@ -190,17 +222,19 @@ class InventoryView(dui.View):
             formatted_item_text = f'x``{item[1]}``{d}'
             embed.add_field(name=f"{i+1}. {GetEmoji(item[0].id)}{str(item[0].name).capitalize()}", value=formatted_item_text, inline=False)
     
-    async def update_embed(self, interaction: discord.Interaction):
+    def embed(self, interaction:discord.Interaction):
         e = discord.Embed(
             title='Inventário do usuário',
             color=0x00FF00
         )
-        e.set_footer(text=f'Pág: {self.actual_page + 1}/{math.ceil(self.user.getTotalItems(self.filter_category)/self.items_per_page)}', icon_url=interaction.guild.icon or interaction.user.display_avatar)
+        e.set_footer(text=f'Pág: {self.actual_page + 1}/{self.total_pages()}', icon_url=interaction.guild.icon or interaction.user.display_avatar)
         
         self.create_fields(e, self.actual_page)
-        # for i, item in enumerate(items):
-        #     uItem:Item = self.user.getItemById(item[0].id)
-        #     e.add_field(name=f"{i+1}. {str(item[0].name).capitalize()}", value=f"x``{item[1]}``\n{"Este item é um material." if uItem['item_data']['item_type'] == 'material' else (f'Usos ``{self.client.humanize_number(uItem['usages'])}`` restantes.' if not uItem['item_data']['unbreakable'] else 'Este item é inquebrável!')}", inline=False)
+        return e
+    
+    async def update_embed(self, interaction: discord.Interaction):
+        e = self.embed(interaction)
+        
         await interaction.response.edit_message(embed=e, view=self)
     
     @dui.button(label='Anterior', style=discord.ButtonStyle.green)
@@ -210,7 +244,7 @@ class InventoryView(dui.View):
             return
         self.actual_page -= 1
         if self.actual_page < 0:
-            self.actual_page = math.ceil((self.user.getTotalItems(self.filter_category)-1)/self.items_per_page)
+            self.actual_page = self.total_pages()-1
             
         await self.update_embed(interaction)
         
@@ -221,7 +255,7 @@ class InventoryView(dui.View):
             await interaction.response.send_message('Apenas o dono do inventário pode interagir!', ephemeral=True)
             return
         self.actual_page += 1
-        if self.actual_page >= math.ceil((self.user.getTotalItems(self.filter_category)+1)/self.items_per_page):
+        if self.actual_page >= self.total_pages():
             self.actual_page = 0
             
         await self.update_embed(interaction)
@@ -558,6 +592,7 @@ class CraftView(dui.View):
         self.rawCrafts_keys = list(self.rawCrafts.keys())
         
         self.crafts = {}
+        self.craft_data:dict = {} # This will get all the data from rawCrafts
         self.crafts_load()
         
         self.crafts_per_page = 9
@@ -580,6 +615,8 @@ class CraftView(dui.View):
         self.UiSelectQuantity = dui.Select(placeholder='Quant.', options=[discord.SelectOption(label=f'{i}', value=f'{i}', default=(i == self.quantity)) for i in range(1, self.get_max_quantity(self.selected)+1, 1)], min_values=1, max_values=1,disabled=False)
         self.UiSelectQuantity.callback = self.UiItemQuantityCallback
         self.add_item(self.UiSelectQuantity)
+        
+        self.craft_data = self.rawCrafts[self.selected]
         
         await self.update_embed(interaction)
 
@@ -617,7 +654,7 @@ class CraftView(dui.View):
             for i, item_data in enumerate(crafts):
                 item = RawItems.findById(item_data)
                 required_items = '\n- '.join([f'{RawItems.findById(i["id"]).name} x{i["amount"]}' for i in self.rawCrafts[item_data]['items']])
-                e.add_field(name=f"{i+1}. {GetEmoji(item.id)}{item.name}{'(Faltam recursos.)' if not RawItems.canCraft(self.user, item.id) else ''}\nItems: ```\n- {required_items}```\nVocê tem ``x{self.user.getItemById(item.id)['amount'] if self.user.getItemById(item.id) else 0}``", value=f'Nível: **{item.level}**', inline=True)
+                e.add_field(name=f"{i+1}. {GetEmoji(item.id)}{item.name}{'(Faltam recursos.)' if not RawItems.canCraft(self.user, item.id) else ''}", value=f'Items: ```\n- {required_items}```\nVocê tem ``x{self.user.getItemById(item.id)['amount'] if self.user.getItemById(item.id) else 0}``\n``{self.craft_data["result"]}`` por crafting.\nNível: **{item.level}**', inline=True)
     
     def embed(self, interaction:discord.Interaction):
         e = discord.Embed(title='Crafting', color=0x00FF00)
@@ -666,12 +703,12 @@ class CraftView(dui.View):
             return
         for item in self.rawCrafts[self.selected]['items']:
             self.user.remove_item(item['id'], int(item['amount'] * self.quantity))
-        self.user.add_item(self.selected, int(self.quantity))
+        self.user.add_item(self.selected, int(self.quantity) * self.craft_data['result'])
         
         self.client.db.update_value('users', 'data_user', self.user.id, self.user.save())
         self.client.db.save()
         
-        await interaction.response.send_message(f'Você criou ``{self.quantity}x`` {RawItems.findById(self.selected).name}', ephemeral=True)
+        await interaction.response.send_message(f'Você fez ``{self.quantity}x`` {RawItems.findById(self.selected).name}', ephemeral=True)
         await self.update_embed(interaction)
         
     

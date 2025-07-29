@@ -256,7 +256,25 @@ async def _search(interaction: discord.Interaction):
 
 @t.command(name='derrubar', description='Obtenha madeira ao cortar arvores',guilds=[])
 async def _cut(interaction: discord.Interaction):
-    await interaction.response.send_message('Cortando...')
+    u = getUser(client, interaction.user.id)
+    
+    woods = RawItems.getSubtype('wood', level_limit=u._level)
+    
+    wood = random.choice(woods)
+    amount = random.randint(1,3)
+    e = discord.Embed(
+        title='Cortando',
+        description=f'Voce cortou x{amount} {wood.name}!',
+        color=Funny_Color
+    )
+    e.set_footer(text=str(random.choice(tips)), icon_url=interaction.guild.icon or interaction.user.display_avatar)
+    
+    print(wood.item_type)
+    u.add_item(wood.id, amount)
+    
+    client.db.update_value('users', 'data_user', u.id, u.save())
+    client.db.save()
+    await interaction.response.send_message(embed=e)
     
 @t.command(name='suporte', description='Suporte',guilds=[])
 async def _support(interaction: discord.Interaction):
@@ -286,16 +304,11 @@ async def _give_item(interaction: discord.Interaction, user: discord.User):
     u = getUser(client, interaction.user.id)
     u2 = getUser(client, user.id)
     
-    e = discord.Embed(
-        title='Itens disponíveis no seu inventário',
-        color=0x00FF00
-    )
-    
+    print('Criando View...')
     v = GiveItemView(u,u2,user,interaction.client)
-    for i, item in enumerate(v.get_items_page(v.actual_page)):
-        tool:Item = u.getToolById(item[0].id)
-        e.add_field(name=f"{i+1}. {tool['item_data']['name']}", value=f"x``{item[1]}``\n{(f'Usos ``{client.humanize_number(tool["usages"])}`` restantes.' if not tool['item_data']['unbreakable'] else 'Este item é inquebrável!')}", inline=False)
-    
+    print('Criando Embed...')
+    e = v.embed(interaction)
+    print('Enviando Embed...')
     await interaction.response.send_message(embed=e, view=v)
     
 @t.command(name='inventario', description='Vê o inventário do usuário',guilds=[])
@@ -304,13 +317,8 @@ async def _inventory(interaction: discord.Interaction, category: ItemsTypes= Non
     
     # View paginated
     v = InventoryView(u,interaction.client, category)
-    e = discord.Embed(
-        title='Inventário do usuário',
-        color=0x00FF00
-    )
-    e.set_footer(text=f'Pág: {v.actual_page + 1}/{math.ceil(v.user.getTotalItems(category)/v.items_per_page)}', icon_url=interaction.guild.icon or interaction.user.display_avatar)
-    v.create_fields(embed=e, page=v.actual_page)
-    await interaction.response.send_message(embed=e, view=v)
+    
+    await interaction.response.send_message(embed=v.embed(interaction), view=v)
     
 @t.command(name='usuario-loja', description='Compre itens para o usuário',guilds=[])
 async def _user_shop(interaction: discord.Interaction):
