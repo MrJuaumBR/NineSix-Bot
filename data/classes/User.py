@@ -1,11 +1,23 @@
-import pickle, asyncio
+import pickle, asyncio, datetime
 from discord import Guild, TextChannel, utils
 from JPyDB import Database
 from .Server import Server
 
 from ..globals import *
 
-save_keys = ['_premium', '_level', '_exp', '_wallet', '_bank', '_tools', '_rep', '_equipped_equipment', '_items']
+save_keys = ['_premium', '_level', '_exp', '_wallet', '_bank', '_tools', '_rep', '_equipped_equipment', '_items', '_combat_data']
+
+default_combat_data = {
+    'attacks': [],
+    'life':100,
+    'max-life':100,
+    'mana':100,
+    'max-mana':100,
+    'armor':0,
+    'max-armor':0,
+    'equipped-attacks':[],
+    'last-attack-received':None,
+}
 
 class User:
     id: int
@@ -26,8 +38,11 @@ class User:
         'pickaxe':None,
         'fishing_rod':None,
         'weapon':None,
+        'accessory-1':None,
+        'accessory-2':None
     }
     last_guild: Guild = None
+    _combat_data: dict = {}
     
     @property
     def premium(self): return self._premium
@@ -71,6 +86,9 @@ class User:
                     self.client.loop.create_task(_send_message())
                 self.client.db.update_value('users', 'data_user', self.id, self.save())
                 self.client.db.save()
+        elif self._exp < 0: # Level down
+            self.level -= 1
+            self._exp = (100*self._level) - abs(self._exp)
     
                 
     @wallet.setter
@@ -105,11 +123,31 @@ class User:
                 'fishing_rod':None,
                 'weapon':None,
             },
+            'combat_data': default_combat_data
         }
         self.last_guild = None
+        self.data_user.setdefault('combat_data', default_combat_data)
+        self.__dict__.setdefault('_combat_data', default_combat_data)
+        
         
         self.load_data_user()
         
+    def heal_sys(self):    
+        a, m = self.get_life_info()
+        if a < m:
+            if self._combat_data['last-attack-received'] == None:
+                self._combat_data['life'] = m
+            else:
+                elapsed = (datetime.datetime.now() - self._combat_data['last-attack-received']).total_seconds()
+                if elapsed >= 5:
+                    intervals = int(elapsed//5)
+                    heal_amount = (0.1 * m)* intervals
+                    # Recover 10% of life per 5 seconds, need to use datetime to calculate because of bot restart
+                    self._combat_data['life'] = min(a + heal_amount, m)
+                    self.client.db.update_value('users', 'data_user', self.id, self.save())
+                    self.client.db.save()
+                
+    
     def getToolById(self, item_id:int) -> dict:
         return self.tools[item_id] if item_id in self.tools.keys() else None    
     def getItemById_(self, item_id:str) -> dict:
@@ -120,6 +158,21 @@ class User:
         if x == None:
             x = self.getItemById_(item_id)
         return x
+    
+    def takeDamage(self, damage:int) -> bool:
+        self._combat_data['life'] -= damage
+        if self._combat_data['life'] < 0: self._combat_data['life'] = 0
+        
+        self._combat_data['last-attack-received'] = datetime.datetime.now()
+        return True
+            
+    
+    def equipAbility(self, ability_id:str):
+        if ability_id in self._combat_data['equipped-attacks']:
+            self._combat_data['equipped-attacks'].remove(ability_id)
+        elif ability_id in self._combat_data['attacks']:
+            if len(self._combat_data['equipped-attacks']) >= 5: return
+            self._combat_data['equipped-attacks'].append(ability_id)
     
     def getToolsByType(self, category:ItemsTypes) -> list:
         x = []
@@ -167,6 +220,9 @@ class User:
     def getTotalItems(self, category:ItemsTypes=None, subtype:str=None) -> int:
         return len(self.getItems(category, subtype))
     
+    def getTotalSkills(self) -> int:
+        return len(self._combat_data['attacks'])
+    
     def deleteTool(self, category:ItemsTypes):
         toolId = self._equipped_equipment[category]
         if toolId != None:
@@ -174,12 +230,13 @@ class User:
             self._equipped_equipment[category] = None
     
     def getEquipped(self, item_type:ItemsTypes) -> dict: 
-        if self.equipped_equipment[item_type] == None:
+        if item_type == 'ability': return self.get_equipped_attacks()
+        elif self.equipped_equipment[item_type] == None:
             return None
-        return self.getToolById(self.equipped_equipment[item_type])
+        return self.getItemById(self.equipped_equipment[item_type])
     
     def equip(self, item_type:ItemsTypes, item_id:str):
-        t = self.getToolById(item_id)
+        t = self.getItemById(item_id)
         if t:
             # Check if i can stay using it(It haves any usages left? or it is unbreakable?)
             if t['item_data']['unbreakable'] or t['usages'] > 0:
@@ -192,6 +249,29 @@ class User:
     def unequip(self, item_type:ItemsTypes):
         self._equipped_equipment[item_type] = None
     
+    def get_life_info(self) -> tuple[float, float]:
+        return self._combat_data['life'], self._combat_data['max-life']
+    
+    def get_life_percentage(self) -> float:
+        return self._combat_data['life'] / self._combat_data['max-life']
+    
+    def get_mana_info(self) -> tuple[float, float]:
+        return self._combat_data['mana'], self._combat_data['max-mana']
+    
+    def get_mana_percentage(self) -> float:
+        return self._combat_data['mana'] / self._combat_data['max-mana']
+    
+    def add_attack(self, attack_id:str):
+        attack = CHandler.get_attack_by_id(attack_id)
+        if attack and attack not in self._combat_data['attacks']:
+            self._combat_data['attacks'].append(attack)
+            
+    def get_attacks(self):
+        return self._combat_data['attacks']
+    
+    def get_equipped_attacks(self) -> list[str, ]:
+        return self._combat_data['equipped-attacks']
+        
     def add_item(self, item_id:int, amount:int = 1):
         i:Item = RawItems.findById(item_id)
         if str(item_id) in self.items.keys():
@@ -214,23 +294,56 @@ class User:
     def load_data_user(self):
         for key in self.data_user.keys():
             self.__setattr__(f'_{key}', self.data_user[key])    
+            
+        # Run Life Sys
+        self.heal_sys()
     
     def load(self, data: bytes):
         d:dict = {}
         d = dict(pickle.loads(data))
         
         for key in d.keys():
-            self.data_user[key] = d[key]                
+            if key == '_combat_data':
+                self.data_user[key] = self.combat_data_format(d[key], 'load')
+            else:
+                self.data_user[key] = d[key]                
                 
         self.load_data_user()
         
         
         return self
+    def combat_data_format(self, data, process:Literal['save','load']='save') -> dict:
+        if process == 'save':
+            r = {}
+            for key in data.keys():
+                value = data[key]
+                if key in ['attacks', 'equipped-attacks']:
+                  if not key in r.keys():
+                    r[key] = []
+                  for attack in value: r[key].append(attack.id if isinstance(attack, Attack) else attack)
+                else:
+                  r[key] = value
+            return r  
+        elif process == 'load':
+            r = {}
+            for key in data.keys():
+                value = data[key]
+                if key in ['attacks', 'equipped-attacks']:
+                  if not key in r.keys():
+                    r[key] = []
+                  for attack in value: r[key].append(CHandler.get_attack_by_id(attack))
+                else:
+                  r[key] = value
+            return r
+    
     def save(self) -> bytes:
         d = {}
         for key in save_keys:
             if key in self.__dict__.keys():
-                d[(key if not key.startswith('_') else key[1:])] = self.__dict__[key]
+                if key == '_combat_data':
+                    d[(key if not key.startswith('_') else key[1:])] = self.combat_data_format(self.__dict__[key], 'save')
+                else:
+                    d[(key if not key.startswith('_') else key[1:])] = self.__dict__[key]
         return pickle.dumps(d)
 
 class UserShop:

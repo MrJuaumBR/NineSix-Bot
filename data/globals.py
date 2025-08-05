@@ -1,10 +1,41 @@
 from typing import Literal
-import math, json
+import math, json, unicodedata
+from .classes.Combat import Attack, Enemy, CombatHandler
 
 ItemsTypes = Literal['weapon', 'fishing_rod', 'pickaxe', 'axe', 'material']
 BotData = json.load(open('data/data.json', 'rb'))
 BotEmojis = BotData['emojis']
 BotCrafts = BotData['crafts']
+BotDamages = BotData['damages']
+
+
+tips = [
+    'Dinheiro no banco não pode ser roubado',
+    'Donos dos servidores podem definir o imposto sobre transações',
+    'Quanto maior sua reputação, mais experiência e dinheiro você ganha',
+    'Alguns itens desbloqueiam comandos',
+    'Cada ícone desse bot foi feito a mão por *mrjuaum*',
+    'O Latão é uma mistura de Cobre(2) e Ferro(1) = 2'
+]
+
+def normalize_text(text:str) -> str:
+    return unicodedata.normalize('NFKD', text).encode('ASCII', 'ignore').decode('utf-8')
+
+
+def humanize_number(value:float) -> str:
+    # 1000 -> 1k
+    # 10000 -> 10k
+    # 100000 -> 100k
+    # 1000000 -> 1M
+    # 10000000 -> 10M
+    # 100000000 -> 100M
+    # ...
+    suffixes = ['', 'k', 'M', 'B', 'T','Qd']
+    i = 0
+    while abs(value) >= 1000 and i < len(suffixes) - 1:
+        value /= 1000
+        i += 1
+    return f"{value:.2f}{suffixes[i]}"
 
 def GetEmoji(id:str) -> str:
     if f'ns_{id}' in BotEmojis.keys(): return BotEmojis[f'ns_{id}']
@@ -47,6 +78,11 @@ class Item:
         self.description = description
         
         self.emoji = f'ns_{self.id}'
+        
+    @property
+    def damage(self) -> tuple[int, int]:
+        d = BotDamages[self.id]
+        return (d['min'], d['max']) or (0,0)
 
 class ItemObj:
     values:list[Item,] = [
@@ -91,7 +127,9 @@ class ItemObj:
         Item('plant_grass','Grama', 0, 1, 'material', True, 'plant', True),
         Item('plant_herbs','Ervas', 0, 1, 'material', True, 'plant', True),
         Item('bone','Osso', 0, 1, 'material', True, 'bone', True),
-        Item('iron_spikes','Espinhos de Ferro', 0, 10, 'material', True),
+        Item('iron_spikes','Espinhos de Ferro', 0, 10, 'spikes', True),
+        Item('leather','Pele', 0, 1, 'material', True, 'leather', False),
+        Item('cloth','Tecido', 0, 1, 'material', True, 'cloth', False),
         # Ores
         Item('ore_tin','Minério de Estanho', 0, 1, 'material', True, 'ore', False),
         Item('ore_copper','Minério de Cobre', 0, 1, 'material', True, 'ore', False),
@@ -183,4 +221,5 @@ class ItemObj:
         return None
     
 RawItems = ItemObj()
+CHandler = CombatHandler()
 AllItemsIds = [str(i.id) for i in RawItems.values]

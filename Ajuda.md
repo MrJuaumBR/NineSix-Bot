@@ -490,3 +490,100 @@
         </td>
     </tr>
 </table>
+
+# Habilidades
+- Para equipar sua habilidade use ``/equipamentos``
+- Para desequipar uma habilidade apenas clique para equipar uma que já esteja equipada
+- Você pode ter até 5 Habilidades equipadas
+- Libere-as com nível.
+- Encontre-as.
+
+???
+
+# Inimigos
+- Os inimigos aparecem apenas se eles estiverem dentro do seu alcance de nível.
+- Os ataques dos inimigos podem acertar, ou não.
+- Os inimigos podem dropar alguns itens.
+- Use ``/batalhar`` para lutar com um inimigo.
+- Ao perder uma batalha você recebera penalidades.
+
+<table>
+    <caption>Inimigos</caption>
+    <thead>
+        <td>
+            Nome
+        </td>
+        <td>
+            Nível
+        </td>
+        <td>
+            Drops
+        </td>
+        <td>
+            Ataques
+        </td>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                Goblin(goblin_basic)
+            </td>
+            <td>
+                Nvl. 1
+            </td>
+            <td>
+                <ul>
+                    <li>Osso: 50%</li>
+                    <li>Tecido: 30%</li>
+                    <li>Couro: 20%</li>
+                </ul>
+            </td>
+            <td>
+                <ul>
+                    <li>Soco</li>
+                    <li>Chute</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Goblin Gigante(goblin_giant)
+            </td>
+            <td>
+                Nvl. 5
+            </td>
+            <td>
+                <ul>
+                    <li>Osso: 30%</li>
+                    <li>Tecido: 40%</li>
+                    <li>Couro: 30%</li>
+                </ul>
+            </td>
+            <td>
+                <ul>
+                    <li>Soco</li>
+                    <li>Chute</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Skeleton(skeleton_basic)
+            </td>
+            <td>
+                Nvl. 5
+            </td>
+            <td>
+                <ul>
+                    <li>Osso: 100%</li>
+                </ul>
+            </td>
+            <td>
+                <ul>
+                    <li>Soco</li>
+                    <li>Investida</li>
+                </ul>
+            </td>
+        </tr>
+    </tbody>
+</table>

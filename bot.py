@@ -84,6 +84,54 @@ async def _casal(interaction: discord.Interaction, user1: discord.User, user2: d
     await interaction.response.send_message(embed=e)
     
 # Economy Commands
+@t.command(name='batalhar',description='Batalha contra monstros aleatórios',guilds=[])
+async def _batalhar(interaction: discord.Interaction):
+    u = getUser(client, interaction.user.id)
+    enemy:Enemy = CHandler.getRandomEnemyNew(level=u.level)
+    
+    v = BattleView(client, u, enemy)
+    
+    await interaction.response.send_message(embed=v.embed(interaction), view=v)
+
+@t.command(name='status', description='Vê o todos os status do usuário',guilds=[])
+async def _status(interaction: discord.Interaction, user: discord.User = None):
+    if user == None: user = interaction.user
+    u = getUser(client, user.id)
+    
+    life, maxLife = u.get_life_info()
+    mana, maxMana = u.get_mana_info()
+    # Will display: Banco, Carteira, Reputação, Nível, quantos itens, quantas habilidades, experiência e porcentagem, vida e porcentagem e etc...
+    e = discord.Embed(
+        title='Status',
+        description=f"""
+        Banco: ``${client.humanize_cash(u.bank)}``
+        Carteira: ``${client.humanize_cash(u.wallet)}``
+        Reputação: ``{u.rep}``
+        Nível: ``{u.level} - {u.exp}/{u.level*100} ({round((u.exp/(u.level*100))*100,2)}%)``
+        Quantidade de itens: ``{u.getTotalItems()}``
+        Quantidade de habilidades: ``{u.getTotalSkills()}``
+        Vida: ``{int(life)}/{int(maxLife)} ({round(life/maxLife*100,2)}%)``
+        Mana: ``{int(mana)}/{int(maxMana)} ({round(mana/maxMana*100,2)}%)``""",
+    )
+    e.set_footer(text=str(random.choice(tips)), icon_url=user.display_avatar or interaction.guild.icon)
+    await interaction.response.send_message(embed=e)
+
+@t.command(name='lutar', description='Lute contra usuários',guilds=[])
+async def _lutar(interaction: discord.Interaction):
+    await interaction.response.send_message('...')
+
+@t.command(name='criar-party', description='Crie uma party',guilds=[])
+async def _criar_party(interaction: discord.Interaction):
+    await interaction.response.send_message('...')
+    
+@t.command(name='convidar-party', description='Entre em uma party',guilds=[])
+async def _convidar_party(interaction: discord.Interaction):
+    await interaction.response.send_message('...')
+    
+@t.command(name='party', description='Vê a party',guilds=[])
+async def _party(interaction: discord.Interaction):
+    await interaction.response.send_message('...')
+
 @t.command(name='catalogo', description='Vê o catalogo de itens',guilds=[])
 async def _catalogo(interaction: discord.Interaction, category: ItemsTypes = None):
     u = getUser(client, interaction.user.id)
@@ -269,7 +317,6 @@ async def _cut(interaction: discord.Interaction):
     )
     e.set_footer(text=str(random.choice(tips)), icon_url=interaction.guild.icon or interaction.user.display_avatar)
     
-    print(wood.item_type)
     u.add_item(wood.id, amount)
     
     client.db.update_value('users', 'data_user', u.id, u.save())
@@ -286,15 +333,7 @@ async def _equipamentos(interaction: discord.Interaction):
     
     v = GearView(u,interaction.client)
     
-    e = discord.Embed(
-        title='Equipamentos',
-        description=f'{v.pages[v.actual_page]['description']}\nEquipado atualmente: {v.actual_equipment() if v.user.getEquipped(v.pages[v.actual_page]['item_type']) != None else "Nenhum"}.',
-        color=0x00FF00
-    )
-    e.set_footer(text=f'Pág: {v.actual_page + 1}/{len(v.pages)}', icon_url=interaction.guild.icon or interaction.user.display_avatar)
-    
-    for i, item in enumerate(v.get_items_page(v.actual_page)):
-        e.add_field(name=f"{i+1}. {str(item['item_data']['name']).capitalize()}", value=f"x``{u.getToolById(item['item_data']['id'])['amount']}``\n{v.get_left_usages(item['item_data']['id'])}", inline=False)
+    e = v.embed(interaction)
     
     await interaction.response.send_message(embed=e, view=v)
     
@@ -304,11 +343,9 @@ async def _give_item(interaction: discord.Interaction, user: discord.User):
     u = getUser(client, interaction.user.id)
     u2 = getUser(client, user.id)
     
-    print('Criando View...')
     v = GiveItemView(u,u2,user,interaction.client)
-    print('Criando Embed...')
     e = v.embed(interaction)
-    print('Enviando Embed...')
+    
     await interaction.response.send_message(embed=e, view=v)
     
 @t.command(name='inventario', description='Vê o inventário do usuário',guilds=[])
@@ -539,6 +576,18 @@ async def _level_up_channel(interaction: discord.Interaction, channel: discord.T
     await interaction.response.send_message('Level up channel set to ' + channel.mention)
 
 # Bot Owner Commands
+@t.command(name='attacks-debug-add', description='Add attack to database | Only admin can use',guilds=[])
+async def _add_attack(interaction: discord.Interaction, attack_id: str, user_id:str=None):
+    if interaction.user.id in owner_ids:
+        if user_id == None:
+            user_id = interaction.user.id
+        
+        u = getUser(client, user_id)
+        u.add_attack(attack_id)
+        pdb.database.update_value('users', 'data_user', user_id, u.save())
+        pdb.database.save()
+        await interaction.response.send_message('Attack added to user', ephemeral=True)
+
 @t.command(name='cash-debug-add', description='Add cash to user | Only admin can use',guilds=[])
 async def _add_cash(interaction: discord.Interaction, user_id: str, amount: int, local:Literal['bank', 'wallet'] = 'wallet'):
     if interaction.user.id in owner_ids:

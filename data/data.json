@@ -156,5 +156,23 @@
             "local":"smelt",
             "result":1
         }
+    },
+    "damages": {
+        "weapon_club": {
+            "min": 3,
+            "max": 5
+        },
+        "weapon_silver_knife": {
+            "min": 4,
+            "max": 6
+        },
+        "weapon_copper_knife": {
+            "min": 5,
+            "max": 7
+        },
+        "weapon_club_spiked": {
+            "min": 6,
+            "max": 8
+        }
     }
 }

@@ -4,7 +4,7 @@ from .classes.Shop import *
 from .classes.Views import *
 
 from typing import Any, Literal
-import discord, os, random, asyncio, math, unicodedata
+import discord, os, random, asyncio, math
 from discord.ext import commands
 from JPyDB import pyDatabase, Tables
 
@@ -20,14 +20,6 @@ pdb =pyDatabase('./data/database')
 
 owner_ids:list[int,] = [int(x) for x in os.environ.get('OWNER').split(',')]
 
-tips = [
-    'Dinheiro no banco não pode ser roubado',
-    'Donos dos servidores podem definir o imposto sobre transações',
-    'Quanto maior sua reputação, mais experiência e dinheiro você ganha',
-    'Alguns itens desbloqueiam comandos',
-    'Cada ícone desse bot foi feito a mão por *mrjuaum*',
-    'O Latão é uma mistura de Cobre(2) e Ferro(1) = 2'
-]
 def getUser(client,user_id:int) -> User:
     if client.db.findByText('users', 'id', user_id)['id'] != None:
         u = User(user_id,client).load(client.db.findByText('users', 'id', user_id)['data_user'])
@@ -46,24 +38,7 @@ def getServer(client,server_id:int) -> Server:
         client.db.save()
     return s
 
-def normalize_text(text:str) -> str:
-    return unicodedata.normalize('NFKD', text).encode('ASCII', 'ignore').decode('utf-8')
 
-
-def humanize_number(value:float) -> str:
-    # 1000 -> 1k
-    # 10000 -> 10k
-    # 100000 -> 100k
-    # 1000000 -> 1M
-    # 10000000 -> 10M
-    # 100000000 -> 100M
-    # ...
-    suffixes = ['', 'k', 'M', 'B', 'T','Qd']
-    i = 0
-    while abs(value) >= 1000 and i < len(suffixes) - 1:
-        value /= 1000
-        i += 1
-    return f"{value:.2f}{suffixes[i]}"
 
 class Bot(discord.Client):
     synced:bool = False

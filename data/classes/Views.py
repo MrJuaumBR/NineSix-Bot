@@ -3,8 +3,9 @@ from discord import ui as dui
 from .User import User as UserType
 from .Shop import ItemObj, Item
 from typing import Literal
-
-from ..globals import ItemsTypes, math, RawItems, GetEmoji
+from .Combat import Enemy, Attack
+import random
+from ..globals import ItemsTypes, math, RawItems, GetEmoji, CHandler, humanize_number
 
 class GiveItemView(dui.View):
     def __init__(self, user:UserType, user2:UserType, user2_client:discord.User, client:discord.Client):
@@ -290,36 +291,45 @@ class GearView(dui.View):
         
         
     def create_pages(self):
-        # Fishing Page 1/?
+        # Fishing Page 1/5
         self.pages.append({
             'description': 'Equipamentos de pesca',
             'items': self.user.getToolsByType('fishing_rod'),
             'item_type': 'fishing_rod'
         })
-        # Mining Page 2/?
+        # Mining Page 2/5
         self.pages.append({
             'description': 'Equipamentos de mineração',
-            'items': self.user.getToolsByType('pickaxe'),
+            'items': self.user.getItems(category='pickaxe'),
             'item_type': 'pickaxe'
         })
-        # Axe Page 3/?
+        # Axe Page 3/5
         self.pages.append({
             'description': 'Equipamentos de corte de madeira',
-            'items': self.user.getToolsByType('axe'),
+            'items': self.user.getItems(category='axe'),
             'item_type': 'axe'
         })
-        # Weapons Page 4/?
+        # Weapons Page 4/5
         self.pages.append({
             'description': 'Equipamentos de arma',
-            'items': self.user.getToolsByType('weapon'),
+            'items': self.user.getItems(category='weapon'),
             'item_type': 'weapon'
+        })
+        self.pages.append({
+            'description': 'Habilidades',
+            'items': self.user.get_attacks(),
+            'item_type': 'ability'
         })
         
     def get_items_page(self, page:int) -> list:
         return self.pages[page]['items']
     
     def get_options(self) -> list[discord.SelectOption]:
-        return [discord.SelectOption(label=str(item['item_data']['name']).capitalize(), value=str(item['item_data']['id'])) for item in self.get_items_page(self.actual_page)]
+        if self.pages[self.actual_page]['item_type'] == 'ability':
+            if len(self.get_items_page(self.actual_page)) == 0: return [discord.SelectOption(label='Nenhum item disponível', value='none', default=True)]
+            else: return [discord.SelectOption(label=str(CHandler.get_attack_by_id(attack_id).name).capitalize(), value=str(attack_id)) for attack_id in self.pages[self.actual_page]['items']]
+        else:
+            return [discord.SelectOption(label=str(item['item_data']['name']).capitalize(), value=str(item['item_data']['id'])) for item in self.get_items_page(self.actual_page)]
     
     async def UiSelectCallback(self, interaction: discord.Interaction):
         if interaction.user.id != self.user.id:
@@ -338,17 +348,29 @@ class GearView(dui.View):
             return f"Usos restantes: {item['usages']}."
     
     def actual_equipment(self):
-        return f'{self.user.getEquipped(self.pages[self.actual_page]['item_type'])['item_data']['name']}\n{self.get_left_usages(self.user.getEquipped(self.pages[self.actual_page]['item_type'])['item_data']['id'])}'
+        if self.pages[self.actual_page]['item_type'] == 'ability':
+            x = '\n'
+            for i,attack_id in enumerate(self.user.get_equipped_attacks()):
+                atk = CHandler.get_attack_by_id(attack_id)
+                x += f'{i+1}. {atk.name}{"\n" if i < len(self.user.get_equipped_attacks()) - 1 else ""}'
+        else:
+            x = f'{self.user.getEquipped(self.pages[self.actual_page]['item_type'])['item_data']['name']}\n{self.get_left_usages(self.user.getEquipped(self.pages[self.actual_page]['item_type'])['item_data']['id'])}'
+        return x
     
     def create_fields(self, e:discord.Embed, page:int):
         items = self.get_items_page(page)
         if len(items) == 0:
             e.add_field(name='Nenhum item encontrado.', value='Nenhum item encontrado.', inline=False)
         else:
-            for i, item in enumerate(items):
-                e.add_field(name=f"{i+1}. {str(item['item_data']['name']).capitalize()}", value=f"x``{self.user.getToolById(item['item_data']['id'])['amount']}``\n{self.get_left_usages(item['item_data']['id'])}", inline=False)
+            if self.pages[self.actual_page]['item_type'] == 'ability':
+                for i, attack_id in enumerate(items):
+                    atk = CHandler.get_attack_by_id(attack_id)
+                    e.add_field(name=f"{i+1}. {atk.name}", value=f"Mana: {atk.mana_cost}\nDano: {atk.damage}\n```{atk.description}```", inline=False)
+            else:
+                for i, item in enumerate(items):
+                    e.add_field(name=f"{i+1}. {str(item['item_data']['name']).capitalize()}", value=f"x``{self.user.getItemById(item['item_data']['id'])['amount']}``\n{self.get_left_usages(item['item_data']['id'])}", inline=False)
     
-    async def update_embed(self, interaction: discord.Interaction):
+    def embed(self, interaction: discord.Interaction):
         self.selected = None
         if self.UiSelect:
             self.remove_item(self.UiSelect)
@@ -364,7 +386,11 @@ class GearView(dui.View):
         )
         e.set_footer(text=f'Pág: {self.actual_page + 1}/{len(self.pages)}', icon_url=interaction.guild.icon or interaction.user.display_avatar)
         self.create_fields(e, self.actual_page)
-        await interaction.response.edit_message(embed=e, view=self)
+        return e
+    
+    async def update_embed(self, interaction: discord.Interaction):
+        
+        await interaction.response.edit_message(embed=self.embed(interaction), view=self)
         
     @dui.button(label='Anterior', style=discord.ButtonStyle.green)
     async def back(self, interaction: discord.Interaction, button: dui.button):
@@ -395,22 +421,28 @@ class GearView(dui.View):
             await interaction.response.send_message('Apenas o dono do inventário pode interagir!', ephemeral=True)
             return
         
-        if len(self.user.getToolsByType(self.pages[self.actual_page]['item_type'])) <= 0:
+        if self.pages[self.actual_page]['item_type'] == 'ability':
+            if self.selected == None:
+                await interaction.response.send_message('Selecione um ataque!', ephemeral=True)
+                return
+            else:
+                if not (self.selected in self.user.get_equipped_attacks()) and len(self.user.get_equipped_attacks()) >= 5:
+                    await interaction.response.send_message(' Vocês possui 5 ataques equipados.', ephemeral=True)
+                    return
+                else:
+                    self.user.equipAbility(self.selected)
+        elif len(self.user.getItems(category=self.pages[self.actual_page]['item_type'])) <= 0:
             await interaction.response.send_message('Você não possui nenhum item desta categoria.', ephemeral=True)
             return
         elif self.selected == None or self.selected == self.user.getEquipped(self.pages[self.actual_page]['item_type']):
             self.user.unequip(self.pages[self.actual_page]['item_type'])
             await interaction.response.send_message('Item desequipado.', ephemeral=True)
-            return
-        
-        
-        self.user.equip(self.pages[self.actual_page]['item_type'],self.selected)
+        else:
+            self.user.equip(self.pages[self.actual_page]['item_type'],self.selected)
+            await self.update_embed(interaction)
+            
         self.client.db.update_value('users', 'data_user', self.user.id, self.user.save())
         self.client.db.save()
-        
-        await interaction.response.defer()
-        await interaction.followup.send('Item equipado.', ephemeral=True)
-        await self.update_embed(interaction)
     
     @dui.button(label='Fechar', style=discord.ButtonStyle.red)
     async def close(self, interaction: discord.Interaction, button: dui.button):
@@ -711,6 +743,161 @@ class CraftView(dui.View):
         await interaction.response.send_message(f'Você fez ``{self.quantity}x`` {RawItems.findById(self.selected).name}', ephemeral=True)
         await self.update_embed(interaction)
         
+    
+    @dui.button(label='Fechar', style=discord.ButtonStyle.red)
+    async def close(self, interaction: discord.Interaction, button: dui.button):
+        if interaction.user.id != self.user.id:
+            await interaction.response.send_message('Apenas o dono do inventário pode interagir!', ephemeral=True)
+            return
+        self.clear_items()
+        self.stop()
+        await interaction.response.edit_message(view=self)
+        
+class BattleView(dui.View):
+    enemy:Enemy
+    user:UserType
+    round_count:int = 1
+    _who_attack:Literal['user', 'enemy'] = 'user'
+    actions:list[str,] = []
+    selected:str
+    
+    @property
+    def who_attack(self):
+        return self._who_attack
+    
+    @who_attack.setter
+    def who_attack(self, value:Literal['user', 'enemy']):
+        self._who_attack = value
+        self.round_count += 1
+        if self._who_attack == 'enemy': self.enemy_attack()
+    
+    def __init__(self, client, user:UserType, enemy:Enemy):
+        super().__init__()
+        self.client = client
+        self.user = user
+        self.enemy = enemy
+        self.actions = []
+        self._who_attack = 'user'
+        self.round_count = 1
+        
+        self.uiselect = dui.Select(placeholder='Selec. uma Habilidade.', options=self.get_attacks(), min_values=1, max_values=1, disabled=(True if self.who_attack == 'enemy' or len(self.user.get_equipped_attacks()) == 0 else False))
+        self.uiselect.callback = self.uiselect_callback
+        self.add_item(self.uiselect)
+    
+    def get_attacks(self):
+        if len(self.user.get_equipped_attacks()) <= 0: return [discord.SelectOption(label='Sem Habilidades', value='0'),]
+        else:
+            return [discord.SelectOption(label=CHandler.get_attack_by_id(attack_id).name, value=attack_id) for attack_id in self.user.get_equipped_attacks()]
+    
+    async def uiselect_callback(self, interaction:discord.Interaction):
+        if interaction.user.id != self.user.id:
+            await interaction.response.send_message('Apenas o dono do inventário pode interagir!', ephemeral=True)
+            return
+        
+        self.selected = self.uiselect.values[0]
+        atk = CHandler.get_attack_by_id(self.selected)
+        item = self.user.getEquipped('weapon')
+        if item is not None: item = RawItems.findById(item['item_data']['id'])
+        dmg = (atk.damage + random.randint(item.damage[0], item.damage[1])) * random.uniform(0.85,1.15)
+        self.enemy.takeDamage(dmg)
+        self.add_action(f'{interaction.user.display_name} usou {atk.name} e causou {round(dmg,2)} de dano.')
+        
+        self.who_attack = 'enemy'
+        
+        await self.update_embed(interaction)
+        
+        
+    def add_fields(self, e:discord.Embed):
+        for i, attack_id in enumerate(self.user.get_equipped_attacks()):
+            attack:Attack = CHandler.get_attack_by_id(attack_id)
+            e.add_field(name=f'{i+1}. {attack.name}', value=f'Consumo de mana: {attack.mana_cost}\n``{attack.description}``', inline=False)
+        
+    def embed(self, interaction:discord.Interaction):
+        self.remove_item(self.uiselect)
+        self.uiselect = dui.Select(placeholder='Selec. uma Habilidade.', options=self.get_attacks(), min_values=1, max_values=1, disabled=(True if self.who_attack == 'enemy' or len(self.user.get_equipped_attacks()) == 0 else False))
+        self.uiselect.callback = self.uiselect_callback
+        self.add_item(self.uiselect)
+        
+        user_life, user_max_life = self.user.get_life_info()
+        user_life_percent = int(self.user.get_life_percentage() * 100)
+        
+        enemy_life, enemy_max_life = self.enemy.get_life_info()
+        enemy_life_percent = int(self.enemy.get_life_percentage() * 100)
+        
+        actions = f''
+        for i, action in enumerate(self.actions):
+            actions += f'{i+1}. {action}{"\n" if i < len(self.actions) - 1 else ""}'
+        
+        e = discord.Embed(
+            title=f'Batalha com {str(self.enemy.name).capitalize()}',
+            color=0x00FF00,
+            description=f'Vez de ``{str((interaction.user.name if self.who_attack == "user" else self.enemy.name)).capitalize()}``\nVida de {str(interaction.user.name).capitalize()}: ``{int(user_life)}/{int(user_max_life)}({user_life_percent}%)``\nVida de {str(self.enemy.name).capitalize()}: ``{int(enemy_life)}/{int(enemy_max_life)}({enemy_life_percent}%)``\n```\n{actions}```'
+        )
+        
+        self.add_fields(e)
+        
+        e.set_footer(text=f'Rodada: {self.round_count}, Vez de {str((interaction.user.name if self.who_attack == "user" else self.enemy.name)).capitalize()}', icon_url=interaction.guild.icon or interaction.user.display_avatar)
+        return e
+    
+    async def update_embed(self, interaction:discord.Interaction):
+        if self.enemy.life <= 0:
+            x = ''
+            for item_id in self.enemy.get_random_reward(self.user.level/self.enemy.level):
+                amount = random.randint(1,3)
+                item = RawItems.findById(item_id)
+                x += f'{amount}x {item.name}\n'
+                self.user.add_item(item_id, amount)
+            exp, money = round((self.enemy.rewards[0] * (self.user.level/self.enemy.level)) * random.uniform(0.85,2),2), round((self.enemy.rewards[1] * (self.user.level/self.enemy.level)) * random.uniform(0.85,2),2)
+            x += f'{exp} pontos de experiência\n{humanize_number(money)} moedas\n'
+            e = discord.Embed(title='Vitoria', description=f'Venceu a batalha com {str(self.enemy.name).capitalize()} e recebeu:\n{x}', color=0x00FF00)
+            self.user.wallet += money
+            self.user.exp += exp
+            
+            self.client.db.update_value('users', 'data_user', self.user.id, self.user.save())
+            self.client.db.save()
+            self.clear_items()
+            self.stop()
+            await interaction.response.edit_message(embed=e,view=self)
+        elif self.user.get_life_info()[0] <= 0:
+            e = discord.Embed(title='Derrota', description=f'Perdeu a batalha com {str(self.enemy.name).capitalize()}.\n-10% de experiencia,\n-1% de dinheiro na carteira.', color=0xFF0000)
+            self.user.exp *= 0.9
+            self.user.wallet *= 0.99
+            
+            self.client.db.update_value('users', 'data_user', self.user.id, self.user.save())
+            self.client.db.save()
+            
+            self.clear_items()
+            self.stop()
+            await interaction.response.edit_message(embed=e,view=self)
+        else:
+            await interaction.response.edit_message(embed=self.embed(interaction), view=self)
+    
+    def add_action(self, action:str):
+        self.actions.append(action)
+        if len(self.actions) > 7:
+            del self.actions[0]
+    
+    def enemy_attack(self):
+        atk, su = self.enemy.get_random_attack()
+        dmg = atk.damage + su
+        if random.randint(0, self.user.level) % 2 == 0:
+            self.user.takeDamage(dmg)
+            self.add_action(f'{self.enemy.name} atacou com {atk.name} e causou {round(dmg,2)} de dano.')
+        else:
+            self.user.takeDamage(0)
+            self.add_action(f'{self.enemy.name} atacou com {atk.name} e errou.')
+        self.who_attack = 'user'
+        
+    
+    @dui.button(label='Passar', style=discord.ButtonStyle.blurple)
+    async def skip(self, interaction: discord.Interaction, button: dui.button):
+        if interaction.user.id != self.user.id:
+            await interaction.response.send_message('Apenas o dono do inventário pode interagir!', ephemeral=True)
+            return
+        self.add_action(f'{interaction.user.name} pulou a vez.')
+        self.who_attack = 'enemy' if self.who_attack == 'user' else 'user'
+        
+        await self.update_embed(interaction)
     
     @dui.button(label='Fechar', style=discord.ButtonStyle.red)
     async def close(self, interaction: discord.Interaction, button: dui.button):
