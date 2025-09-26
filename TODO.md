@@ -36,3 +36,5 @@
 - [x] Amount that crafts result;
 - [x] "dar-item" command fix(only getting some items instead of all of them);
 - [x] Level Down when lose an Battle;
+- [x] Level Experience;
+- [x] Some errors with *float* numbers;

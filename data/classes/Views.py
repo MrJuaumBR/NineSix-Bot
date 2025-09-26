@@ -845,10 +845,10 @@ class BattleView(dui.View):
             for item_id in self.enemy.get_random_reward(self.user.level/self.enemy.level):
                 amount = random.randint(1,3)
                 item = RawItems.findById(item_id)
-                x += f'{amount}x {item.name}\n'
+                x += f'- ``{amount}``x **{item.name}**\n'
                 self.user.add_item(item_id, amount)
             exp, money = round((self.enemy.rewards[0] * (self.user.level/self.enemy.level)) * random.uniform(0.85,2),2), round((self.enemy.rewards[1] * (self.user.level/self.enemy.level)) * random.uniform(0.85,2),2)
-            x += f'{exp} pontos de experiência\n{humanize_number(money)} moedas\n'
+            x += f'- ``{exp}``x **Pontos de experiência**\n- ``${humanize_number(money)}``x **Moedas**\n'
             e = discord.Embed(title='Vitoria', description=f'Venceu a batalha com {str(self.enemy.name).capitalize()} e recebeu:\n{x}', color=0x00FF00)
             self.user.wallet += money
             self.user.exp += exp
@@ -880,7 +880,7 @@ class BattleView(dui.View):
     def enemy_attack(self):
         atk, su = self.enemy.get_random_attack()
         dmg = atk.damage + su
-        if random.randint(0, self.user.level) % 2 == 0:
+        if random.randint(0, int(self.user.level)) % 2 == 0:
             self.user.takeDamage(dmg)
             self.add_action(f'{self.enemy.name} atacou com {atk.name} e causou {round(dmg,2)} de dano.')
         else:

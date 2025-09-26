@@ -107,7 +107,7 @@ async def _status(interaction: discord.Interaction, user: discord.User = None):
         Banco: ``${client.humanize_cash(u.bank)}``
         Carteira: ``${client.humanize_cash(u.wallet)}``
         Reputação: ``{u.rep}``
-        Nível: ``{u.level} - {u.exp}/{u.level*100} ({round((u.exp/(u.level*100))*100,2)}%)``
+        Nível: ``{int(u.level)} - {u.exp}/{u.level*100} ({round((u.exp/(u.level*100))*100,2)}%)``
         Quantidade de itens: ``{u.getTotalItems()}``
         Quantidade de habilidades: ``{u.getTotalSkills()}``
         Vida: ``{int(life)}/{int(maxLife)} ({round(life/maxLife*100,2)}%)``

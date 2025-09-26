@@ -281,7 +281,49 @@
             </ul>
         </td>
     </tr>
-        <tr>
+    <tr>
+        <td>
+            1x Faca de Osso(weapon_bone_knife)
+        </td>
+        <td>
+            Nvl. 3
+        </td>
+        <td>
+            10
+        </td>
+        <td>
+            <ul>
+                <li>
+                    2x Osso(bone)
+                </li>
+                <li>
+                    1x Graveto(wood_stick)
+                </li>
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            1x Lança de Osso(weapon_bone_spear)
+        </td>
+        <td>
+            Nvl. 7
+        </td>
+        <td>
+            20
+        </td>
+        <td>
+            <ul>
+                <li>
+                    2x Osso(bone)
+                </li>
+                <li>
+                    2x Graveto(wood_stick)
+                </li>
+            </ul>
+        </td>
+    </tr>
+    <tr>
         <td>
             3x Espinhos de Ferro(iron_spikes)
         </td>
@@ -582,6 +624,28 @@
                 <ul>
                     <li>Soco</li>
                     <li>Investida</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Goblin Feiticeiro(goblin_sorcerer)
+            </td>
+            <td>
+                Nvl. 10
+            </td>
+            <td>
+                <ul>
+                    <li>Osso: 20%</li>
+                    <li>Tecido: 50%</li>
+                    <li>Couro: 30%</li>
+                </ul>
+            </td>
+            <td>
+                <ul>
+                    <li>Impacto</li>
+                    <li>Míssil Mágico</li>
+                    <li>Descansar</li>
                 </ul>
             </td>
         </tr>

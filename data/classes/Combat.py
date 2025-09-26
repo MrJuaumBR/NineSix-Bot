@@ -1,6 +1,6 @@
 from typing import Literal
 import random
-attack_types = Literal['physical', 'magic', 'slash']
+attack_types = Literal['physical', 'magic', 'slash', 'knockback', 'weapon']
 
 class Attack:
     CombatHandler:object
@@ -76,11 +76,15 @@ class CombatHandler:
             Attack(self,'attack_punch', 'Soco', 10,'physical', 1, 0, 'Apenas um soco normal'),
             Attack(self, 'attack_kick', 'Chute', 15, 'physical', 1, 0, 'Um chute normal'),
             Attack(self, 'attack_assault', 'Investida', 25, 'physical', 1, 0, 'Um empurrão forte'),
+            Attack(self, 'attack_rest', 'Descansar', 0, 'magic', 1, 70, 'Recupera 1% ~ 4% da vida máxima'),
+            Attack(self, 'attack_impact', 'Impacto', 40, 'physical', 5, 20, 'Um ataque forte que causa um grande impacto'),
+            Attack(self, 'attack_magic_missile', 'Míssil Mágico', 30, 'magic', 10, 30, 'Um ataque mágico que causa dano moderado'),
         ]
         self.enemies_args:list[tuple,] = [
             (self,'goblin_basic', 'Goblin', 1, 50, [{'id':'bone', 'chance':0.5}, {'id':'cloth', 'chance':0.3}, {'id':'leather', 'chance':0.2}], (10,10), ['attack_punch','attack_kick']),
-            (self, 'goblin_giant', 'Goblin Gigante', 5, 100, [{'id':'bone', 'chance':0.3}, {'id':'cloth', 'chance':0.4}, {'id':'leather', 'chance':0.3}], (20,10), ['attack_punch','attack_kick']),
-            (self,'skeleton_basic', 'Skeleton', 5, 70, [{'id':'bone', 'chance':1.0}], (10,10), ['attack_punch','attack_assault'])
+            (self,'goblin_giant', 'Goblin Gigante', 5, 100, [{'id':'bone', 'chance':0.3}, {'id':'cloth', 'chance':0.4}, {'id':'leather', 'chance':0.3}], (20,10), ['attack_punch','attack_kick']),
+            (self,'skeleton_basic', 'Skeleton', 5, 70, [{'id':'bone', 'chance':1.0}], (10,10), ['attack_punch','attack_assault']),
+            (self,'goblin_sorcerer', 'Goblin Feiticeiro', 10, 70, [{'id':'bone', 'chance':0.2}, {'id':'cloth', 'chance':0.5}, {'id':'leather', 'chance':0.3}], (30,20), ['attack_impact','attack_magic_missile','attack_rest'], 10),
         ]
         self.enemies:list[Enemy,] = [Enemy(*args) for args in self.enemies_args]
     

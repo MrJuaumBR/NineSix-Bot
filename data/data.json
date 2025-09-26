@@ -92,6 +92,24 @@
             "local":"craft",
             "result":1
         },
+        "weapon_bone_knife":{
+            "items":[
+                {"id":"wood_stick", "amount":1},
+                {"id":"bone", "amount":2}
+            ],
+            "level":3,
+            "local":"craft",
+            "result":1
+        },
+        "weapon_bone_spear":{
+            "items":[
+                {"id":"wood_stick", "amount":2},
+                {"id":"bone", "amount":2}
+            ],
+            "level":7,
+            "local":"craft",
+            "result":1
+        },
         "bar_copper":{
             "items":[
                 {"id":"ore_copper", "amount":3}

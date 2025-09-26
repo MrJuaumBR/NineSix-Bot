@@ -108,7 +108,9 @@ class ItemObj:
         Item('weapon_club', 'Porrete', 3, 1, 'weapon', subtype='club'),
         Item('weapon_copper_knife', 'Faca de Cobre', 5, 1, 'weapon', subtype='knife'),
         Item('weapon_silver_knife', 'Faca de Prata', 7, 1, 'weapon', subtype='knife'),
+        Item('weapon_bone_knife', 'Faca de Osso', 10, 3, 'weapon', subtype='knife'),
         Item('weapon_club_spiked', 'Porrete com Espinhos', 15, 10, 'weapon', subtype='club'),
+        Item('weapon_bone_spear', 'Lança de Osso', 20, 7, 'weapon', subtype='spear'),
         # Woods
         Item('wood_oak', 'Madeira de carvalho', 1, 1, item_type='material', subtype='wood'),
         # Fishes

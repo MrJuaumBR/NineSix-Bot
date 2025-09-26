@@ -74,15 +74,17 @@ class User:
     @exp.setter
     def exp(self, value):
         self._exp = round(value,2)
-        if self._exp >= 100*self._level:
-            self._exp -= 100*self._level
-            self.level += 1
+        if self._exp >= 100*self._level: # Level up
+            # Needs to known hoy many levels will up
+            levels_up = self._exp // (100*self._level)
+            self._exp -= (100*self._level) * levels_up
+            self.level += levels_up
             if self.last_guild != None:
                 s = Server(0).load(self.client.db.findByText('servers', 'id', self.last_guild)['data_server'])
                 if s.level_up_channel != None:
                     channel:TextChannel = self.client.get_channel(s.level_up_channel)
                     async def _send_message():
-                        await channel.send(f'**<@{self.id}>** alcançou o nível **{self.level}**!')
+                        await channel.send(f'**<@{self.id}>** alcançou o nível **{int(self.level)}**! (+{int(levels_up)}) 🎉')
                     self.client.loop.create_task(_send_message())
                 self.client.db.update_value('users', 'data_user', self.id, self.save())
                 self.client.db.save()
