@@ -11,7 +11,7 @@ class Attack:
     level:int
     mana_cost:int
     description:str
-    def __init__(self, CombatHandler, id:str, name:str, damage:int, type_of_damage:attack_types, level:int, mana_cost:int, description:str):
+    def __init__(self, CombatHandler, id:str, name:str, damage:int, type_of_damage:attack_types, level:int, mana_cost:int, description:str, target:Literal['enemy', 'self']='enemy'):
         self.CombatHandler = CombatHandler
         self.id = id
         self.name = name
@@ -75,8 +75,8 @@ class CombatHandler:
         self.attacks:list[Attack,] = [
             Attack(self,'attack_punch', 'Soco', 10,'physical', 1, 0, 'Apenas um soco normal'),
             Attack(self, 'attack_kick', 'Chute', 15, 'physical', 1, 0, 'Um chute normal'),
-            Attack(self, 'attack_assault', 'Investida', 25, 'physical', 1, 0, 'Um empurrão forte'),
-            Attack(self, 'attack_rest', 'Descansar', 0, 'magic', 1, 70, 'Recupera 1% ~ 4% da vida máxima'),
+            Attack(self, 'attack_assault', 'Investida', 25, 'physical', 1, 0, 'Uma investida rápida que causa dano moderado'),
+            Attack(self, 'attack_rest', 'Descansar', 0, 'magic', 1, 70, 'Recupera 1% ~ 4% da vida máxima', 'self'),
             Attack(self, 'attack_impact', 'Impacto', 40, 'physical', 5, 20, 'Um ataque forte que causa um grande impacto'),
             Attack(self, 'attack_magic_missile', 'Míssil Mágico', 30, 'magic', 10, 30, 'Um ataque mágico que causa dano moderado'),
         ]
@@ -85,6 +85,9 @@ class CombatHandler:
             (self,'goblin_giant', 'Goblin Gigante', 5, 100, [{'id':'bone', 'chance':0.3}, {'id':'cloth', 'chance':0.4}, {'id':'leather', 'chance':0.3}], (20,10), ['attack_punch','attack_kick']),
             (self,'skeleton_basic', 'Skeleton', 5, 70, [{'id':'bone', 'chance':1.0}], (10,10), ['attack_punch','attack_assault']),
             (self,'goblin_sorcerer', 'Goblin Feiticeiro', 10, 70, [{'id':'bone', 'chance':0.2}, {'id':'cloth', 'chance':0.5}, {'id':'leather', 'chance':0.3}], (30,20), ['attack_impact','attack_magic_missile','attack_rest'], 10),
+            (self,'skeleton_warrior', 'Esqueleto Guerreiro', 15, 150, [{'id':'bone', 'chance':0.5}, {'id':'cloth', 'chance':0.2}, {'id':'leather', 'chance':0.3}], (50,30), ['attack_punch','attack_kick','attack_assault'], 5),
+            (self,'orc_basic', 'Orc', 20, 200, [{'id':'bone', 'chance':0.3}, {'id':'cloth', 'chance':0.3}, {'id':'leather', 'chance':0.4}], (70,50), ['attack_punch','attack_kick','attack_impact'], 15),
+            (self,'armored_orc', 'Orc Blindado', 25, 300, [{'id':'bone', 'chance':0.3}, {'id':'cloth', 'chance':0.3}, {'id':'leather', 'chance':0.3}, {'id':'ore_iron', 'chance':0.1}], (100,70), ['attack_punch','attack_kick','attack_impact','attack_assault'], 20),
         ]
         self.enemies:list[Enemy,] = [Enemy(*args) for args in self.enemies_args]
     
@@ -103,6 +106,16 @@ class CombatHandler:
                 
         return x
     
+    def randomAttack(self, level:int=None) -> Attack:
+        if level is None:
+            return random.choice(self.attacks)
+        else:
+            x = []
+            for attack in self.attacks:
+                if attack.level <= level:
+                    x.append(attack)
+            return random.choice(x)
+    
     def getRandomEnemy(self, level:int=None, exclude:list[str,]=[], level_range:tuple[int,int]=None) -> Enemy:
         return random.choice(self.getEnemys(level, exclude, level_range))
     
@@ -114,5 +127,4 @@ class CombatHandler:
         for attack in self.attacks:
             if attack.id == attack_id:
                 return attack
-            
         return None

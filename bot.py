@@ -82,8 +82,9 @@ async def _casal(interaction: discord.Interaction, user1: discord.User, user2: d
     )
     e.set_footer(text=str(random.choice(tips)), icon_url=user1.display_avatar)
     await interaction.response.send_message(embed=e)
-    
-# Economy Commands
+
+
+# RPG Commands
 @t.command(name='batalhar',description='Batalha contra monstros aleatórios',guilds=[])
 async def _batalhar(interaction: discord.Interaction):
     u = getUser(client, interaction.user.id)
@@ -146,7 +147,7 @@ async def _catalogo(interaction: discord.Interaction, category: ItemsTypes = Non
     v.create_fields(e, v.actual_page)
     
     await interaction.response.send_message(embed=e, view=v)
-
+# Economy Commands
 @t.command(name='pescar', description='Pescar',guilds=[])
 @discord.app_commands.checks.cooldown(1, 3)
 async def _fish(interaction: discord.Interaction):
@@ -227,6 +228,17 @@ async def _smelt(interaction: discord.Interaction, auto: bool = False):
         v = SmeltView(u, client, ores, BotCrafts)
         await interaction.response.send_message(embed=v.embed(interaction), view=v)
         return
+
+@t.command(name="loja-diaria", description='Vê a loja diária do usuário',guilds=[])
+async def _daily_shop(interaction: discord.Interaction):
+    random.seed(datetime.now().day + datetime.now().year)
+    daily_shop_id = random.randint(0, len(BotDailyShop)-1)
+    daily_shop = BotDailyShop[daily_shop_id]
+    
+    u = getUser(client, interaction.user.id)
+    v = DailyShop(u, client, daily_shop)
+    
+    await interaction.response.send_message(embed=v.embed(interaction), view=v)
     
 @t.command(name='minerar', description='Minerar',guilds=[])
 async def _mine(interaction: discord.Interaction,min_level: int = 0, max_level: int = 0):
@@ -393,7 +405,7 @@ async def _daily(interaction: discord.Interaction):
     if 'daily_buff' in s.buffs.keys():
         extra += s.buffs['daily_buff']
         
-    x = (random.randint((u.level+u.rep)*5, (u.level+u.rep)*7) * extra) * 100
+    x = (random.uniform((u.level+u.rep)*5, (u.level+u.rep)*7) * extra) * 100
     u.wallet += x
     client.db.update_value('users', 'data_user', u.id, u.save())
     client.db.save()

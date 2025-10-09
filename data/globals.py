@@ -1,12 +1,14 @@
 from typing import Literal
 import math, json, unicodedata
 from .classes.Combat import Attack, Enemy, CombatHandler
+from datetime import datetime
 
 ItemsTypes = Literal['weapon', 'fishing_rod', 'pickaxe', 'axe', 'material']
 BotData = json.load(open('data/data.json', 'rb'))
 BotEmojis = BotData['emojis']
 BotCrafts = BotData['crafts']
 BotDamages = BotData['damages']
+BotDailyShop = BotData['shops']
 
 
 tips = [
@@ -111,6 +113,9 @@ class ItemObj:
         Item('weapon_bone_knife', 'Faca de Osso', 10, 3, 'weapon', subtype='knife'),
         Item('weapon_club_spiked', 'Porrete com Espinhos', 15, 10, 'weapon', subtype='club'),
         Item('weapon_bone_spear', 'Lança de Osso', 20, 7, 'weapon', subtype='spear'),
+        Item('weapon_copper_spear', 'Lança de Cobre', 25, 10, 'weapon', subtype='spear'),
+        Item('weapon_silver_spear', 'Lança de Prata', 30, 15, 'weapon', subtype='spear'),
+        Item('weapon_iron_spear', 'Lança de Ferro', 40, 20, 'weapon', subtype='spear'),
         # Woods
         Item('wood_oak', 'Madeira de carvalho', 1, 1, item_type='material', subtype='wood'),
         # Fishes

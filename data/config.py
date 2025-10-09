@@ -22,7 +22,8 @@ owner_ids:list[int,] = [int(x) for x in os.environ.get('OWNER').split(',')]
 
 def getUser(client,user_id:int) -> User:
     if client.db.findByText('users', 'id', user_id)['id'] != None:
-        u = User(user_id,client).load(client.db.findByText('users', 'id', user_id)['data_user'])
+        u = User(user_id,client)
+        u = u.load(client.db.findByText('users', 'id', user_id)['data_user'])
     else:
         u = User(user_id, client)
         client.db.add_values('users', ['id', 'data_user'], [user_id, u.save()] , user_id)

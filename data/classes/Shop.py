@@ -243,7 +243,41 @@ class UserShopView(View):
         
         await interaction.response.edit_message(embed=Embed(description='Shop fechado.', color=0xFF0000), view=self)
     
+
+class DailyShop(View):
+    def __init__(self, user, client:Client, shop:dict):
+        super().__init__(timeout=None)
+        self.user = user
+        self.client = client
+        self.shop = shop
+        
+        self.items_per_page = 6
+        self.actual_page = 0
+        
+    def get_options(self):
+        pass
     
+    def get_pages(self):
+        items = self.shop['items']
+        return len(items) // self.items_per_page + (1 if len(items) % self.items_per_page > 0 else 0)
+    
+    def get_items_page(self, page:int):
+        return self.shop['items'][page * self.items_per_page : (page + 1) * self.items_per_page]
+        
+    def embed(self, interaction: Interaction) -> Embed:
+        e = Embed(
+            title='Loja Diária',
+            description=f'Itens a venda para o jogador:\n*Dinheiro do banco será utilizado para comprar itens*\n',
+            color=0x00FF00
+        )
+        
+        for i, item in enumerate(self.shop['items']):
+            uItem = RawItems.findById(item['id'])
+            e.add_field(name=f"{i+1}. {uItem.name}", value=f"{uItem.description} - ``por {item['price']} = S${self.client.humanize_cash(item['price'])}``, Nível: **{uItem.level}**", inline=False)
+            
+        e.set_footer(text=f'Todo dia as 00:00, {self.actual_page+1}/{self.get_pages()}', icon_url=interaction.guild.icon or interaction.user.display_avatar)
+        return e
+
 Server_Items = [
     Product(name='Aumento de experiencia', price=10000, description='Aumenta o ganho de experiencia em 10%.', action=more_exp_multiplier),
     Product(name='Aumento de dinheiro', price=10000, description='Aumenta o ganho de dinheiro em 10%.', action=more_exp_multiplier),

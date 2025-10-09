@@ -795,12 +795,20 @@ class BattleView(dui.View):
             return
         
         self.selected = self.uiselect.values[0]
-        atk = CHandler.get_attack_by_id(self.selected)
-        item = self.user.getEquipped('weapon')
-        if item is not None: item = RawItems.findById(item['item_data']['id'])
-        dmg = (atk.damage + random.randint(item.damage[0], item.damage[1])) * random.uniform(0.85,1.15)
-        self.enemy.takeDamage(dmg)
-        self.add_action(f'{interaction.user.display_name} usou {atk.name} e causou {round(dmg,2)} de dano.')
+        atk:Attack = CHandler.get_attack_by_id(self.selected)
+        
+        if atk.mana_cost <= self.user.get_life_info()[1]:
+            item:Item = self.user.getEquipped('weapon')
+            if item is not None: item = RawItems.findById(item['item_data']['id'])
+            
+            dmg = (atk.damage + random.randint(item.damage[0], item.damage[1])) * random.uniform(0.85,1.15)
+            
+            self.enemy.takeDamage(dmg)
+            self.user.useMana(atk.mana_cost)    
+            
+            self.add_action(f'{interaction.user.display_name} usou {atk.name} e causou {round(dmg,2)} de dano.')
+        else:
+            self.add_action(f'{interaction.user.display_name} tentou usar {atk.name}, mas não tinha mana suficiente.')
         
         self.who_attack = 'enemy'
         
@@ -850,18 +858,22 @@ class BattleView(dui.View):
             exp, money = round((self.enemy.rewards[0] * (self.user.level/self.enemy.level)) * random.uniform(0.85,2),2), round((self.enemy.rewards[1] * (self.user.level/self.enemy.level)) * random.uniform(0.85,2),2)
             x += f'- ``{exp}``x **Pontos de experiência**\n- ``${humanize_number(money)}``x **Moedas**\n'
             e = discord.Embed(title='Vitoria', description=f'Venceu a batalha com {str(self.enemy.name).capitalize()} e recebeu:\n{x}', color=0x00FF00)
+            
+            # DB update (Exp, Money, Items, Life, Mana)
             self.user.wallet += money
             self.user.exp += exp
-            
             self.client.db.update_value('users', 'data_user', self.user.id, self.user.save())
             self.client.db.save()
+            
             self.clear_items()
             self.stop()
+            
             await interaction.response.edit_message(embed=e,view=self)
         elif self.user.get_life_info()[0] <= 0:
             e = discord.Embed(title='Derrota', description=f'Perdeu a batalha com {str(self.enemy.name).capitalize()}.\n-10% de experiencia,\n-1% de dinheiro na carteira.', color=0xFF0000)
             self.user.exp *= 0.9
             self.user.wallet *= 0.99
+            
             
             self.client.db.update_value('users', 'data_user', self.user.id, self.user.save())
             self.client.db.save()
@@ -879,8 +891,8 @@ class BattleView(dui.View):
     
     def enemy_attack(self):
         atk, su = self.enemy.get_random_attack()
-        dmg = atk.damage + su
-        if random.randint(0, int(self.user.level)) % 2 == 0:
+        dmg = atk.damage + su + (self.enemy.level * random.uniform(0.01, 0.5))
+        if random.randint(1,20) + self.enemy.level > self.user.level + random.randint(1,20):
             self.user.takeDamage(dmg)
             self.add_action(f'{self.enemy.name} atacou com {atk.name} e causou {round(dmg,2)} de dano.')
         else:

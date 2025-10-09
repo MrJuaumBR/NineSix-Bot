@@ -28,6 +28,7 @@
 - [ ] Bosses Mundiais;
 - [x] Icons for items/Icones para os itens;
 - [ ] Players Shop/Loja dos jogadores; 
+- [ ] Daily Shop/Loja diária; *
   
 
 ## Changes/Fixes
@@ -38,3 +39,4 @@
 - [x] Level Down when lose an Battle;
 - [x] Level Experience;
 - [x] Some errors with *float* numbers;
+- [x] Level up random skill(20%);

@@ -537,10 +537,64 @@
 - Para equipar sua habilidade use ``/equipamentos``
 - Para desequipar uma habilidade apenas clique para equipar uma que já esteja equipada
 - Você pode ter até 5 Habilidades equipadas
-- Libere-as com nível.
+- Libere-as com nível (20% por nível).
 - Encontre-as.
 
-???
+<table>
+    <thead>
+        <tr>
+            <th>Habilidade</th>
+            <th>Descrição</th>
+            <th>Nível</th>
+            <th>Mana</th>
+            <th>Dano</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Soco (attack_punch)</td>
+            <td>Apenas um soco normal</td>
+            <td>Nvl. 1</td>
+            <td>0</td>
+            <td>10</td>
+        </tr>
+        <tr>
+            <td>Chute (attack_kick)</td>
+            <td>Um chute normal</td>
+            <td>Nvl. 1</td>
+            <td>0</td>
+            <td>15</td>
+        </tr>
+        <tr>
+            <td>Investida (attack_assault)</td>
+            <td>Uma investida rápida que causa dano moderado</td>
+            <td>Nvl. 1</td>
+            <td>0</td>
+            <td>25</td>
+        </tr>
+        <tr>
+            <td>Descansar (attack_rest)</td>
+            <td>Recupera 1% ~ 4% da vida máxima</td>
+            <td>Nvl. 1</td>
+            <td>70</td>
+            <td>0</td>
+        </tr>
+        <tr>
+            <td>Impacto (attack_impact)</td>
+            <td>Um ataque forte que causa um grande impacto</td>
+            <td>Nvl. 5</td>
+            <td>20</td>
+            <td>40</td>
+        </tr>
+        <tr>
+            <td>Míssil Mágico (attack_magic_missile)</td>
+            <td>Um ataque mágico que causa dano moderado</td>
+            <td>Nvl. 10</td>
+            <td>30</td>
+            <td>30</td>
+        </tr>
+    </tbody>
+</table>
 
 # Inimigos
 - Os inimigos aparecem apenas se eles estiverem dentro do seu alcance de nível.
@@ -646,6 +700,74 @@
                     <li>Impacto</li>
                     <li>Míssil Mágico</li>
                     <li>Descansar</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Esqueleto Guerreiro(skeleton_warrior)
+            </td>
+            <td>
+                Nvl. 15
+            </td>
+            <td>
+                <ul>
+                    <li>Osso: 50%</li>
+                    <li>Tecido: 20%</li>
+                    <li>Couro: 30%</li>
+                </ul>
+            </td>
+            <td>
+                <ul>
+                    <li>Soco</li>
+                    <li>Chute</li>
+                    <li>Investida</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Orc(orc_basic)
+            </td>
+            <td>
+                Nvl. 20
+            </td>
+            <td>
+                <ul>
+                    <li>Osso: 30%</li>
+                    <li>Tecido: 30%</li>
+                    <li>Couro: 40%</li>
+                </ul>
+            </td>
+            <td>
+                <ul>
+                    <li>Soco</li>
+                    <li>Chute</li>
+                    <li>Impacto</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Orc Blindado(armored_orc)
+            </td>
+            <td>
+                Nvl. 25
+            </td>
+            <td>
+                <ul>
+                    <li>Osso: 30%</li>
+                    <li>Tecido: 30%</li>
+                    <li>Couro: 30%</li>
+                    <li>Minerais de Ferro: 10%</li>
+                </ul>
+            </td>
+            <td>
+                <ul>
+                    <li>Soco</li>
+                    <li>Chute</li>
+                    <li>Impacto</li>
+                    <li>Investida</li>
                 </ul>
             </td>
         </tr>

@@ -31,6 +31,47 @@
         "ns_wood_oak":"<:ns_wood_oak:1398290396538339440>",
         "ns_bone":"<:ns_bone:1398290483041534104>"
     },
+    "shops":[
+        {
+            "id":0,
+            "name":"O Sobrevivente",
+            "description":"Itens básicos para sobrevivência.",
+            "items": [
+                {"id":"wood_stick", "price":5},
+                {"id":"weapon_club", "price":40},
+                {"id":"weapon_bone_knife", "price":75},
+                {"id":"weapon_bone_spear", "price":150}
+            ]
+        },
+        {
+            "id":1,
+            "name":"O Ferreiro",
+            "description":"Itens de metalurgia e armas.",
+            "items": [
+                {"id":"ore_copper", "price":10},
+                {"id":"ore_iron", "price":20},
+                {"id":"ore_silver", "price":30}
+            ]
+        },
+        {
+            "id":2,
+            "name":"O Guerreiro",
+            "description":"Armas para combate.",
+            "items": [
+                {"id":"weapon_copper_knife", "price":100},
+                {"id":"weapon_silver_knife", "price":200},
+                {"id":"weapon_club_spiked", "price":300}
+            ]
+        },
+        {
+            "id":3,
+            "name":"O Lanceiro",
+            "description":"``Eu uso apenas lanças.``",
+            "items": [
+                {"id":"weapon_bone_spear", "price":150}
+            ]
+        }
+    ],
     "crafts": {
         "wood_stick":{
             "items":[
@@ -107,6 +148,33 @@
                 {"id":"bone", "amount":2}
             ],
             "level":7,
+            "local":"craft",
+            "result":1
+        },
+        "weapon_copper_spear":{
+            "items":[
+                {"id":"wood_stick", "amount":2},
+                {"id":"bar_copper", "amount":1}
+            ],
+            "level":10,
+            "local":"craft",
+            "result":1
+        },
+        "weapon_silver_spear":{
+            "items":[
+                {"id":"wood_stick", "amount":2},
+                {"id":"bar_silver", "amount":1}
+            ],
+            "level":15,
+            "local":"craft",
+            "result":1
+        },
+        "weapon_iron_spear":{
+            "items":[
+                {"id":"wood_stick", "amount":2},
+                {"id":"bar_iron", "amount":1}
+            ],
+            "level":20,
             "local":"craft",
             "result":1
         },

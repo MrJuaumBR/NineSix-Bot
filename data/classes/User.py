@@ -2,6 +2,7 @@ import pickle, asyncio, datetime
 from discord import Guild, TextChannel, utils
 from JPyDB import Database
 from .Server import Server
+import random
 
 from ..globals import *
 
@@ -17,6 +18,7 @@ default_combat_data = {
     'max-armor':0,
     'equipped-attacks':[],
     'last-attack-received':None,
+    'last-mana-use':None
 }
 
 class User:
@@ -70,7 +72,17 @@ class User:
     @premium.setter
     def premium(self, value): self._premium = value
     @level.setter
-    def level(self, value): self._level = value
+    def level(self, value):
+        self._level = value
+        if random.randint(1,5) == 1: # 20% of unlocking a random skill
+            atk = CHandler.randomAttack(self._level)
+            if atk and atk.id not in [a.id for a in self._combat_data['attacks']]:
+                self.add_attack(atk.id)
+                dm = self.client.create_dm(self.client.get_user(self.id))
+                async def _send_message():
+                    await dm.send(f'Você desbloqueou a habilidade **{atk.name}**! Use ``/equipamentos`` para equipá-la.')
+                self.client.db.update_value('users', 'data_user', self.id, self.save())
+                self.client.db.save()
     @exp.setter
     def exp(self, value):
         self._exp = round(value,2)
@@ -131,24 +143,38 @@ class User:
         self.data_user.setdefault('combat_data', default_combat_data)
         self.__dict__.setdefault('_combat_data', default_combat_data)
         
-        
-        self.load_data_user()
-        
     def heal_sys(self):    
         a, m = self.get_life_info()
         if a < m:
             if self._combat_data['last-attack-received'] == None:
                 self._combat_data['life'] = m
             else:
-                elapsed = (datetime.datetime.now() - self._combat_data['last-attack-received']).total_seconds()
+                elapsed = (datetime.now() - self._combat_data['last-attack-received']).total_seconds()
                 if elapsed >= 5:
                     intervals = int(elapsed//5)
                     heal_amount = (0.1 * m)* intervals
                     # Recover 10% of life per 5 seconds, need to use datetime to calculate because of bot restart
                     self._combat_data['life'] = min(a + heal_amount, m)
+                    try:
+                        self.client.db.update_value('users', 'data_user', self.id, self.save())
+                        self.client.db.save()
+                    except Exception as e:
+                        print(f"Error saving user data in heal_sys: {e}")
+                    
+    def mana_sys(self):    
+        a, m = self.get_mana_info()
+        if a < m:
+            if self._combat_data['last-mana-use'] == None:
+                self._combat_data['mana'] = m
+            else:
+                elapsed = (datetime.now() - self._combat_data['last-mana-use']).total_seconds()
+                if elapsed >= 5:
+                    intervals = int(elapsed//5)
+                    mana_amount = (0.1 * m)* intervals
+                    # Recover 10% of mana per 5 seconds, need to use datetime to calculate because of bot restart
+                    self._combat_data['mana'] = min(a + mana_amount, m)
                     self.client.db.update_value('users', 'data_user', self.id, self.save())
-                    self.client.db.save()
-                
+                    self.client.db.save()            
     
     def getToolById(self, item_id:int) -> dict:
         return self.tools[item_id] if item_id in self.tools.keys() else None    
@@ -165,9 +191,15 @@ class User:
         self._combat_data['life'] -= damage
         if self._combat_data['life'] < 0: self._combat_data['life'] = 0
         
-        self._combat_data['last-attack-received'] = datetime.datetime.now()
+        self._combat_data['last-attack-received'] = datetime.now()
         return True
             
+    def useMana(self, amount:int) -> bool:
+        self._combat_data['mana'] -= amount
+        if self._combat_data['mana'] < 0: self._combat_data['mana'] = 0
+        
+        self._combat_data['last-mana-use'] = datetime.now()
+        return True
     
     def equipAbility(self, ability_id:str):
         if ability_id in self._combat_data['equipped-attacks']:
@@ -294,25 +326,30 @@ class User:
                 del self.items[str(item_id)]
     
     def load_data_user(self):
-        for key in self.data_user.keys():
-            self.__setattr__(f'_{key}', self.data_user[key])    
+        print("Loading data_user...")
+        for key, value in self.data_user.items():
+            self.__setattr__(f'_{key}', value)    
             
         # Run Life Sys
+        print("Running heal_sys...")
         self.heal_sys()
     
     def load(self, data: bytes):
         d:dict = {}
         d = dict(pickle.loads(data))
         
-        for key in d.keys():
+        for key, value in d.items():
             if key == '_combat_data':
-                self.data_user[key] = self.combat_data_format(d[key], 'load')
-            else:
-                self.data_user[key] = d[key]                
                 
+                for k, v in self.combat_data_format(d[key], 'load').items():
+                    self.data_user[key][str(k)] = v
+            else:
+                self.data_user[key] = value
+        
+        print("Data loaded, loading data_user...")
         self.load_data_user()
         
-        
+        print("Returning...")
         return self
     def combat_data_format(self, data, process:Literal['save','load']='save') -> dict:
         if process == 'save':
