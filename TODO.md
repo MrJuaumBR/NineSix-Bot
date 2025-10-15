@@ -29,7 +29,6 @@
 - [x] Icons for items/Icones para os itens;
 - [ ] Players Shop/Loja dos jogadores; 
 - [ ] Daily Shop/Loja diária; *
-  
 
 ## Changes/Fixes
 - [x] Optimize UiView Embed creators;
@@ -40,3 +39,4 @@
 - [x] Level Experience;
 - [x] Some errors with *float* numbers;
 - [x] Level up random skill(20%);
+- [x] + Num. Member Server info;

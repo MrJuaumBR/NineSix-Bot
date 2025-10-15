@@ -98,6 +98,7 @@ class Bot(discord.Client):
     async def on_message(self, message:discord.Message):
         if message.author != self.user and message.author.bot == False:
             server = message.guild
+            await server.get_member(self.user.id).edit(nick=f'NineSix | {int(float(self.humanize_number(server.member_count)))} usuários') # edit(bio=f'Em {len(self.guilds)} servidores | {len(self.users)} usuários')
             user = message.author
             
             s = getServer(self, server.id)

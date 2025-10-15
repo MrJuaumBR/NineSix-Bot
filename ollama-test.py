@@ -1,3 +1,10 @@
+"""
+Disclaimer: This is a test file to test ollama responses, it is not part of the bot.
+! Probably will not be implemented, but who knows?
+
+* I need a good AI for NPCs
+"""
+
 import random, json, requests, subprocess
 from ollama import chat, ChatResponse
 

@@ -24,15 +24,15 @@ async def _gaymeter(interaction: discord.Interaction, user: discord.User = None)
     
     user_name = user.display_name
     
-    # Count the vogals in name and the len of the name if the it have > 5 vogals = 50%, and if len > 7 = 100% it's linear
+    # Count the vowels in name and the len of the name if the it have > 5 vowels = 50%, and if len > 7 = 100% it's linear
     percentage = 0
-    vogals = 0
+    vowels = 0
     for c in user_name:
         if c.lower() in 'aeiou':
-            vogals += 1
+            vowels += 1
 
-    percentage += vogals/5 * 50
-    percentage += len(user_name)/7 * 50
+    percentage += vowels/5 * 50 # Importance: 50%
+    percentage += len(user_name)/7 * 50 # Importance: 50%
     if percentage > 100:
         percentage = 100
     
@@ -570,7 +570,7 @@ async def _server_info(interaction: discord.Interaction):
     
     e = discord.Embed(
         title='Server info',
-        description=f'Experience multiplier: {str(s.server_exp_mult)}\nMoney multiplier: {str(s.server_money_mult)}\nTax: {str(s.server_tax)}%\nLevel up channel: {f'<#{s.level_up_channel}>' if s.level_up_channel != None else "None"}',
+        description=f'Multiplicador de Experiência: {str(s.server_exp_mult)}\nMultiplicador de Dinheiro: {str(s.server_money_mult)}\nTaxa(%): {str(round(s.server_tax*100,2))}%\nCanal de Level Up: {f'<#{s.level_up_channel}>' if s.level_up_channel != None else "None"}\nNº de Membros: {str(interaction.guild.member_count)}',
         color=Debug_Color
     )
     e.set_footer(text=str(random.choice(tips)), icon_url=interaction.guild.icon or interaction.user.display_avatar)

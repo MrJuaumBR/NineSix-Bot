@@ -6,6 +6,7 @@
 - `/servidor-loja` é uma loja aplicável apenas ao servidor(ex: Multiplicador de experiência).
 - Após comprar uma ferramenta/arma, você precisa equipa-la usando o comando `/equipamentos` e então ir até a página do respectivo equipamento.
 - Se estiver curioso em relação aos itens, você pode olhar o `/catalogo` que irá te dar uma visão de todos os itens do bot.
+- O Bot tem uma função aonde ele mostra quantos usuarios cada servidor tem no nick (ex: NineSix | 30M usuarios)
 
 ![Discord Shield](https://discord.com/api/guilds/1014636634341392475/widget.png?style=shield)
 
